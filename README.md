@@ -234,8 +234,8 @@ CodeQuest/
 
 1. **Clone Repository**
    ```bash
-   git clone https://github.com/yourusername/codequest.git
-   cd codequest
+   git clone https://github.com/Yunsmn/CodeQuest.git
+   cd CodeQuest
    ```
 
 2. **Open in IDE**
