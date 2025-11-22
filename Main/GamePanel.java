@@ -8,34 +8,34 @@ import java.awt.*;
 
 public class GamePanel extends JPanel implements Runnable {
 
-    final int GameTiles = 16;
+    final int gameTiles = 16;
     final int scale = 3;
-    public final int GameTileSize = GameTiles * scale;
-    public final int MaxScreenCol = 16;
-    public final int MaxScreenRow = 14;
-    public final int GameScreenRow = 11;
-    final int ParserRow = 3;
-    public final int ScreenWidth = GameTileSize * MaxScreenCol;
-    public final int ScreenHeight = GameTileSize * MaxScreenRow;
-    int FPS = 60;
-    public KeyHandler keyH = new KeyHandler();
-    Thread GameThread;
+    public final int gameTileSize = gameTiles * scale;
+    public final int maxScreenCol = 16;
+    public final int maxScreenRow = 14;
+    public final int gameScreenRow = 11;
+    final int parserRow = 3;
+    public final int screenWidth = gameTileSize * maxScreenCol;
+    public final int screenHeight = gameTileSize * maxScreenRow;
+    int fps = 60;
+    public KeyHandler keyH = new KeyHandler(this);
+    Thread gameThread;
     public Player player = new Player(this, keyH);
 
-    TileManager TileM = new TileManager(this);
+    TileManager tileM = new TileManager(this);
 
-    public CollisionChecker CheckeColl = new CollisionChecker(this);
+    public CollisionChecker collisionChecker = new CollisionChecker(this);
 
-    public final int MaxWorldCol = 50;
-    public final int MaxWorldRow = 50;
-    public final int WorldWidth = MaxWorldCol*GameTileSize;
-    public final int WorldHeight = MaxWorldRow*GameTileSize;
+    public final int maxWorldCol = 25;
+    public final int maxWorldRow = 25;
+    public final int worldWidth = maxWorldCol * gameTileSize;
+    public final int worldHeight = maxWorldRow * gameTileSize;
 
 
 
 
     public GamePanel() {
-        this.setPreferredSize(new Dimension(ScreenWidth, ScreenHeight));
+        this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
         this.setLayout(null);
         this.setFocusable(false);
@@ -45,25 +45,25 @@ public class GamePanel extends JPanel implements Runnable {
         this.setFocusable(true);
     }
 
-    void StartGameThread() {
-        GameThread = new Thread(this);
-        GameThread.start();
+    void startGameThread() {
+        gameThread = new Thread(this);
+        gameThread.start();
     }
 
     @Override
     public void run() {
 
-        double DrawInterval = (double) 1000000000 / FPS;
+        double drawInterval = (double) 1000000000 / fps;
         double deltaTime = 0;
         long lastTime = System.nanoTime();
         long now;
         long timer = 0;
         int frames = 0;
 
-        while (GameThread != null) {
+        while (gameThread != null) {
 
             now = System.nanoTime();
-            deltaTime += (now - lastTime) / DrawInterval;
+            deltaTime += (now - lastTime) / drawInterval;
             timer += now - lastTime;
             lastTime = now;
             if (deltaTime >= 1) {
@@ -88,7 +88,7 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D)g;
-        TileM.draw(g2);
+        tileM.draw(g2);
         player.draw(g2);
         g2.dispose();
     }
