@@ -1,10 +1,16 @@
 package CodeQuest.Main;
 
 import CodeQuest.Entity.Player;
+import CodeQuest.Main.Drawable;
+import CodeQuest.Tiles.MapObject;
+import CodeQuest.Tiles.ObjectManager;
 import CodeQuest.Tiles.TileManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class GamePanel extends JPanel implements Runnable {
 
@@ -23,6 +29,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Player player = new Player(this, keyH);
 
     TileManager tileM = new TileManager(this);
+    ObjectManager objM = new ObjectManager(this);
 
     public CollisionChecker collisionChecker = new CollisionChecker(this);
 
@@ -88,8 +95,41 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D)g;
+
         tileM.draw(g2);
-        player.draw(g2);
+
+        // Collect drawables for Y-sorting
+        List<Drawable> drawables = new ArrayList<>();
+
+        // Add objects
+        for (MapObject obj : objM.objects) {
+            if (obj.worldX + gameTileSize * 2 > player.worldX - player.screenX &&
+                obj.worldX - gameTileSize * 2 < player.worldX + player.screenX &&
+                obj.worldY + gameTileSize * 2 > player.worldY - player.screenY &&
+                obj.worldY - gameTileSize * 2 < player.worldY + player.screenY) {
+                drawables.add(obj);
+            }
+        }
+
+        // Add player
+        drawables.add(player);
+
+        drawables.sort(Comparator.comparingInt(Drawable::getSortY));
+
+        // Draw sorted
+        for (Drawable d : drawables) {
+            int screenX, screenY;
+            if (d instanceof Player) {
+                screenX = player.screenX;
+                screenY = player.screenY;
+            } else {
+                MapObject obj = (MapObject) d;
+                screenX = obj.worldX - player.worldX + player.screenX;
+                screenY = obj.worldY - player.worldY + player.screenY;
+            }
+            d.draw(g2, screenX, screenY);
+        }
+
         g2.dispose();
     }
 }
