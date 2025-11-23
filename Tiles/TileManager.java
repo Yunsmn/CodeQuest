@@ -86,7 +86,7 @@ public class TileManager {
                 }
             }
 
-            Worldcol++;
+            worldCol++;
 
             if (Worldcol == gamePanel.MaxWorldCol) {
                 Worldcol = 0;
