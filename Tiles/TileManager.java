@@ -63,7 +63,7 @@ public class TileManager {
         int worldCol = 0;
         int worldRow = 0;
 
-        while (Worldcol < gamePanel.MaxWorldCol && Worldrow < gamePanel.MaxWorldRow) {
+        while (worldCol < gamePanel.maxWorldCol && worldRow < gamePanel.maxWorldRow) {
 
             int WorldX = gamePanel.GameTileSize * Worldcol;
             int WorldY = gamePanel.GameTileSize * Worldrow;
