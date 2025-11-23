@@ -50,22 +50,31 @@ public class ObjectManager {
                         else tileKey = "beach_down";  // Fallback
                         obj.image = AssetHandler.getInstance().getImage(tileKey);
                         // Set solidArea based on tileKey, half +10 pixels
-                        if (tileKey.equals("beach_up")) {
-                            obj.solidArea = new Rectangle(0, -6, 64, 42);
-                        } else if (tileKey.equals("beach_down")) {
-                            obj.solidArea = new Rectangle(0, 0, 64, 64);  // Full 64x64
-                        } else if (tileKey.equals("beach_left")) {
-                            obj.solidArea = new Rectangle(0, 0, 64, 64);  // Full 64x64
-                        } else if (tileKey.equals("beach_right")) {
-                            obj.solidArea = new Rectangle(0, 0, 64, 64);  // Full 64x64
-                        } else if (tileKey.equals("beach_top_left")) {
-                            obj.solidArea = new Rectangle(-6, -6, 60, 60);  // 60x60
-                        } else if (tileKey.equals("beach_top_right")) {
-                            obj.solidArea = new Rectangle(10, -6, 60, 60);
-                        } else if (tileKey.equals("beach_bottom_left")) {
-                            obj.solidArea = new Rectangle(0, 0, 64, 64);  // Full 64x64
-                        } else if (tileKey.equals("beach_bottom_right")) {
-                            obj.solidArea = new Rectangle(0, 0, 64, 64);  // Full 64x64
+                        switch (tileKey) {
+                            case "beach_up" :
+                                obj.solidArea = new Rectangle(0, -6, 64, 42);
+                                break;
+                            case "beach_down" :
+                                obj.solidArea = new Rectangle(0, 0, 64, 64);// Full 64x64
+                                break;
+                            case "beach_left" :
+                                obj.solidArea = new Rectangle(0, 0, 64, 64);  // Full 64x64
+                                break;
+                            case "beach_right" :
+                                obj.solidArea = new Rectangle(0, 0, 64, 64);  // Full 64x64
+                                break;
+                            case "beach_top_left" :
+                                obj.solidArea = new Rectangle(-6, -6, 60, 60);// 60x60
+                                break;
+                            case "beach_top_right" :
+                                obj.solidArea = new Rectangle(10, -6, 60, 60);
+                                break;
+                            case "beach_bottom_left" :
+                                obj.solidArea = new Rectangle(0, 0, 64, 64);  // Full 64x64
+                                break;
+                            case "beach_bottom_right" :
+                                obj.solidArea = new Rectangle(0, 0, 64, 64);  // Full 64x64
+                                break;
                         }
                         obj.solidAreaDefaultX = obj.solidArea.x;
                         obj.solidAreaDefaultY = obj.solidArea.y;
