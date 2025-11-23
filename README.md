@@ -19,24 +19,43 @@ CodeQuest is an educational puzzle game that teaches programming fundamentals th
 - 60 FPS game loop with delta time calculations
 - Smooth rendering with double buffering
 - Efficient viewport culling (only visible tiles rendered)
+- Y-sorting for depth rendering
 
 **Player System**
-- 8-directional sprite animation with walk cycles
+- 8-directional sprite animation with walk/idle cycles
 - Smooth camera-following movement
 - Rectangle-based collision detection
 - Sprite animation system with frame switching
 
 **Map System**
-- 50x50 tile world map with three tile types
+- 25x25 tile world map with beach border tiles
 - Tile-based collision system
 - Map loading from text files
 - World camera system (player centered)
 
+**Object System**
+- Map objects (walls, trees, bushes) with collision
+- Directional beach tiles for borders
+- Asset loading with AssetHandler
+- Polymorphic drawing with Drawable interface
+
+**NPC System**
+- NPCs with sprite animation (idle/walk cycles)
+- Stationary and moving AI behaviors
+- Collision detection with player and objects
+- Y-sorting rendering
+- Dialogue support (framework in place)
+
 **Collision Detection**
 - Predictive collision checking
-- Solid area rectangles for entities
+- Solid area rectangles for entities, objects, and NPCs
 - Tile-based collision grid
 - Direction-aware collision response
+- Debug collision rectangles display
+
+**UI System**
+- Pause screen with overlay
+- GUI framework for menus and dialogues
 
 ### In Development
 
@@ -70,23 +89,18 @@ CodeQuest is an educational puzzle game that teaches programming fundamentals th
 The team is planning to enhance visual quality while maintaining the game's educational focus.
 
 ### Current Graphics
-- Tile Size: 16x16 pixels
-- Scale Factor: 3x
-- Display Size: 48x48 pixels per tile
-- Style: Simple pixel art
-
-### Planned Upgrades
-- New Tile Sizes: 32x32, 48x48, or 64x64 pixels
-- Higher detail sprites and textures
-- Improved character animations
-- Enhanced environmental details
+- Tile Size: 32x32 pixels
+- Scale Factor: 2x
+- Display Size: 64x64 pixels per tile
+- Style: Pixel art with beach borders
+- Trees: 256x256 scaled sprites with collision
 
 ### Implementation Process
 
-**Step 1: Update Configuration** (GamePanel.java)
+**Current Configuration** (GamePanel.java)
 ```java
-final int GameTiles = 32;  // Change from 16 to new sprite size
-final int scale = 2;       // Adjust scale factor as needed
+final int gameTiles = 32;  // Sprite size
+final int scale = 2;       // Scale factor
 // Result: 32 × 2 = 64 pixels per tile on screen
 ```
 
@@ -113,32 +127,32 @@ final int scale = 2;       // Adjust scale factor as needed
 Maps are stored as text files with space-separated tile indices:
 
 ```
-1 1 1 1 1
-1 0 0 0 1
-1 0 2 0 1
-1 0 0 0 1
-1 1 1 1 1
+0 0 0 0 0
+0 0 0 0 0
+0 0 0 0 0
+0 0 0 0 0
+0 0 0 0 0
 ```
+(Objects and NPCs added separately for walls, trees, bushes, and NPCs)
 
 ### Tile Types
 
 **Current Tiles:**
 - `0` - Grass (walkable terrain)
-- `1` - Wall (solid, blocks movement)
-- `2` - Water (solid, blocks movement)
+- Beach borders: Directional wall tiles (up, down, left, right, corners)
 
 ### Creating Custom Maps
 
 1. Create new text file in `/res/Maps/`
-2. Format: 50 columns × 50 rows
-3. Use space-separated integers (0-9)
+2. Format: 25 columns × 25 rows
+3. Use space-separated integers (0 for grass)
 4. Load in TileManager: `loadMap("/CodeQuest/res/Maps/YourMap.txt")`
 
 Example map structure:
 ```
-Border: All 1s (walls)
-Interior: Mix of 0s (grass) and 2s (water)
-Structures: Enclosed areas with 1s
+Border: Beach tiles (directional)
+Interior: 0s (grass) with tree objects
+Structures: Enclosed areas with walls
 ```
 
 ### Future Enhancements
@@ -157,17 +171,26 @@ CodeQuest/
 │   ├── Main.java              # Application entry point
 │   ├── GamePanel.java         # Game loop, rendering pipeline
 │   ├── KeyHandler.java        # Input event handling
-│   └── CollisionChecker.java  # Collision detection system
+│   ├── CollisionChecker.java  # Collision detection system
+│   ├── Drawable.java          # Drawing interface
+│   ├── GUI.java               # UI and pause screen
+│   └── ButtonGUI.java         # Button interface
 ├── Entity/
 │   ├── entity.java            # Base entity class
-│   └── Player.java            # Player character logic
+│   ├── Player.java            # Player character logic
+│   ├── NPC.java               # NPC character logic
+│   └── NPCManager.java        # NPC loading and management
 ├── Tiles/
 │   ├── Tile.java              # Tile data structure
-│   └── TileManager.java       # Map loading and rendering
+│   ├── TileManager.java       # Map loading and rendering
+│   ├── MapObject.java         # Object data structure
+│   ├── ObjectManager.java     # Object loading and management
+│   └── AssetHandler.java      # Asset loading system
 └── res/
     ├── player/                # Player sprite sheets
-    ├── tiles/                 # Tile textures
-    └── Maps/                  # Level data files
+    ├── tiles/                 # Tile textures and objects
+    ├── Maps/                  # Level data files (WorldMap2.txt, Objects.txt, NPCs.txt)
+      # + more textures 
 ```
 
 ### Core Systems
@@ -194,9 +217,10 @@ CodeQuest/
 **Rendering Pipeline**
 1. Clear screen
 2. Render visible tiles (with culling)
-3. Render entities (player, NPCs)
-4. Render UI elements (future: parser)
-5. Swap buffers (double buffering)
+3. Render objects with Y-sorting (trees, walls, bushes)
+4. Render entities with Y-sorting (player, NPCs)
+5. Render UI elements (pause screen, future: parser)
+6. Swap buffers (double buffering)
 
 ## Development Roadmap
 
@@ -207,6 +231,10 @@ CodeQuest/
 - [x] Collision detection
 - [x] Camera/viewport system
 - [x] World map loading
+- [x] Object system with Y-sorting
+- [x] Asset management
+- [x] NPC system with collision and AI
+- [x] Pause functionality
 
 ### Phase 2: Command System (IN PROGRESS)
 - [ ] Text input field UI
@@ -215,18 +243,16 @@ CodeQuest/
 - [ ] Basic command set (move, interact)
 - [ ] Error handling
 
-### Phase 3: Graphics Enhancement (PLANNED)
-- [ ] Source or create 32x32+ sprites
-- [ ] Design detailed tile textures
-- [ ] Implement sprite scaling system
-- [ ] Polish animations
+### Phase 3: Graphics Enhancement (COMPLETED)
+- [x] Source or create 32x32+ sprites
+- [x] Design detailed tile textures
+- [x] Implement sprite scaling system
+- [x] Polish animations
 
 ### Phase 4: Educational Content (PLANNED)
 - [ ] Tutorial level sequence
 - [ ] Progressive command introduction
 - [ ] Puzzle design and implementation
-- [ ] Achievement tracking
-- [ ] Progress saving system
 
 ## Running the Game
 
@@ -252,10 +278,8 @@ CodeQuest/
    - Use arrow keys for temporary controls
 
 ### Current Controls (Temporary)
-- Arrow Up: Move player up
-- Arrow Down: Move player down
-- Arrow Left: Move player left
-- Arrow Right: Move player right
+- Arrow Keys: Move player
+- Escape: Pause/unpause game
 
 Note: Keyboard controls are temporary and will be replaced by the command parser system.
 
