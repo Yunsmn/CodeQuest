@@ -60,8 +60,8 @@ public class TileManager {
     }
 
     public void draw(Graphics2D g2) {
-        int Worldcol = 0;
-        int Worldrow = 0;
+        int worldCol = 0;
+        int worldRow = 0;
 
         while (Worldcol < gamePanel.MaxWorldCol && Worldrow < gamePanel.MaxWorldRow) {
 
