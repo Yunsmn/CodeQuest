@@ -49,13 +49,8 @@ public class TileManager {
     }
 
     public void getTileImage() {
-        try {
-            Tiles[0] = new Tile();
-            Tiles[0].image = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/tiles/grass.png"));
-
-            Tiles[1] = new Tile();
-            Tiles[1].image = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/tiles/wall.png"));
-            Tiles[1].collison = true;
+        tiles[0] = new Tile();
+        tiles[0].image = AssetHandler.getInstance().getImage("terrain1");
 
             Tiles[2] = new Tile();
             Tiles[2].image = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/tiles/water.png"));
