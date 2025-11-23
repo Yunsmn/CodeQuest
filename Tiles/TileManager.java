@@ -30,7 +30,7 @@ public class TileManager {
             int row =0;
             while (col < gamePanel.maxWorldCol && row < gamePanel.maxWorldRow) {
                 String line = reader.readLine();
-                while (col < gamePanel.MaxWorldCol) {
+                while (col < gamePanel.maxWorldCol) {
                     String[] Nums = line.split(" ");
                     int num =  Integer.parseInt(Nums[col]);
                     MapTile[col][row] = num;
