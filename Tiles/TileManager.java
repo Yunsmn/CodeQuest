@@ -36,7 +36,7 @@ public class TileManager {
                     mapTile[col][row] = num;
                     col++;
                 }
-                if (col == gamePanel.MaxWorldCol) {
+                if (col == gamePanel.maxWorldCol) {
                     row++;
                     col = 0;
                 }
