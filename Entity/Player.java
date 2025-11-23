@@ -18,14 +18,14 @@ public class Player extends entity {
     public Player(GamePanel gamePanel, KeyHandler keyH) {
         this.gamePanel = gamePanel;
         this.keyH = keyH;
-        setdefault();
-        ScreenX = (int) (gamePanel.GameTileSize * 7.5);
-        ScreenY = (int) (gamePanel.GameTileSize*5);
-        Solidarea = new Rectangle();
-        Solidarea.x = 8;
-        Solidarea.y = 16;
-        Solidarea.width = gamePanel.GameTileSize/2;
-        Solidarea.height = gamePanel.GameTileSize/2;
+        setDefault();
+        screenX = (int) (gamePanel.gameTileSize * 7.5);
+        screenY = (int) (gamePanel.gameTileSize * 5);
+        solidArea = new Rectangle();
+        solidArea.x = 8;
+        solidArea.y = 16;
+        solidArea.width = gamePanel.gameTileSize / 2;
+        solidArea.height = gamePanel.gameTileSize / 2;
 
     }
 
