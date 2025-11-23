@@ -28,7 +28,7 @@ public class TileManager {
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
             int col =0;
             int row =0;
-            while (col < gamePanel.MaxWorldCol && row < gamePanel.MaxWorldRow) {
+            while (col < gamePanel.maxWorldCol && row < gamePanel.maxWorldRow) {
                 String line = reader.readLine();
                 while (col < gamePanel.MaxWorldCol) {
                     String[] Nums = line.split(" ");
