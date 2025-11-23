@@ -103,3 +103,13 @@ tree 18 10
 tree 4 15
 tree 22 7
 tree 9 20
+tree 6 6
+tree 8 10
+tree 14 8
+tree 16 14
+tree 3 10
+tree 11 16
+tree 19 5
+tree 7 18
+tree 13 22
+tree 21 12

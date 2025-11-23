@@ -1,7 +1,6 @@
 package CodeQuest.Tiles;
 
 import CodeQuest.Main.GamePanel;
-import CodeQuest.Tiles.AssetHandler;
 
 import java.awt.Rectangle;
 import java.io.BufferedReader;
