@@ -18,8 +18,8 @@ public class TileManager {
         this.gamePanel = gamePanel;
         tiles = new Tile[10]; // grass variants
         getTileImage();
-        MapTile = new int[gamePanel.MaxWorldCol][gamePanel.MaxWorldRow];
-        loadMap("/CodeQuest/res/Maps/WorldMap.txt");
+        mapTile = new int[gamePanel.maxWorldCol][gamePanel.maxWorldRow];
+        loadMap("/CodeQuest/res/Maps/WorldMap2.txt");
     }
 
     public void loadMap(String name) {
