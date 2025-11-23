@@ -29,12 +29,12 @@ public class Player extends entity {
 
     }
 
-    public void setdefault() {
-        WorldX = 100;
-        WorldY = 100;
-        speed = 4;
-        Direction = "down";
-        GetPlayerImage();
+    public void setDefault() {
+        worldX = 100;
+        worldY = 100;
+        speed = 10;
+        direction = "down";
+        getPlayerImage();
     }
 
     public void getPlayerImage() {
