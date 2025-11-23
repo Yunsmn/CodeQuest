@@ -92,7 +92,9 @@ public class ObjectManager {
             obj.solidArea = new Rectangle(53, 133, 32, 59);  // Trunk collision shifted +64 x/y
             obj.solidAreaDefaultX = obj.solidArea.x;
             obj.solidAreaDefaultY = obj.solidArea.y;
-            obj.image = AssetHandler.getInstance().getImage("tree");
+            // Randomly choose tree or tree1
+            String treeKey = (Math.random() < 0.5) ? "tree" : "tree1";
+            obj.image = AssetHandler.getInstance().getImage(treeKey);
         }
         // Add other objects
         return obj; // Default
