@@ -12,7 +12,7 @@ import java.io.InputStreamReader;
 public class TileManager {
     public Tile[] Tiles;
     GamePanel gamePanel;
-    public int[][] MapTile;
+    public int[][] mapTile;
 
     public TileManager(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
