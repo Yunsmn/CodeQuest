@@ -130,6 +130,22 @@ public class GamePanel extends JPanel implements Runnable {
             d.draw(g2, screenX, screenY);
         }
 
+        // Debug: Draw collision rects
+        g2.setColor(Color.RED);
+        for (MapObject obj : objM.objects) {
+            if (obj.collision) {
+                int screenX = obj.worldX - player.worldX + player.screenX;
+                int screenY = obj.worldY - player.worldY + player.screenY;
+                if (obj.worldX + gameTileSize > player.worldX - player.screenX &&
+                    obj.worldX - gameTileSize < player.worldX + player.screenX) {
+                    g2.drawRect(screenX + obj.solidArea.x, screenY + obj.solidArea.y, obj.solidArea.width, obj.solidArea.height);
+                }
+            }
+        }
+        // Draw player collision rect
+        g2.setColor(Color.BLUE);
+        g2.drawRect(player.screenX + player.solidArea.x, player.screenY + player.solidArea.y, player.solidArea.width, player.solidArea.height);
+
         g2.dispose();
     }
 }
