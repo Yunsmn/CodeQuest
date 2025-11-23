@@ -52,9 +52,8 @@ public class TileManager {
         tiles[0] = new Tile();
         tiles[0].image = AssetHandler.getInstance().getImage("terrain1");
 
-            Tiles[2] = new Tile();
-            Tiles[2].image = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/tiles/water.png"));
-            Tiles[2].collison = true;
+        tiles[1] = new Tile();
+        tiles[1].image = AssetHandler.getInstance().getImage("terrain2");
 
 
         }catch (IOException e){
