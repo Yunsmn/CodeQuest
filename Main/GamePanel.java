@@ -39,6 +39,12 @@ public class GamePanel extends JPanel implements Runnable {
     public final int worldWidth = maxWorldCol * gameTileSize;
     public final int worldHeight = maxWorldRow * gameTileSize;
 
+    public int gameState = 0;
+    public final int pauseState = 0;
+    public final int playState = 1;
+
+    GUI ui =  new GUI(this);
+
 
 
 
@@ -51,6 +57,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+        this.gameState = playState;
         player.worldY = 320; // Position player to see top border
     }
 
@@ -90,7 +97,13 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-        player.update();
+
+        if (gameState == playState) {
+            player.update();
+        }
+        if (gameState == pauseState) {
+
+        }
     }
 
     public void paintComponent(Graphics g) {
@@ -157,6 +170,7 @@ public class GamePanel extends JPanel implements Runnable {
         g2.setColor(Color.BLUE);
         g2.drawRect(player.screenX + player.solidArea.x, player.screenY + player.solidArea.y, player.solidArea.width, player.solidArea.height);
 
+        ui.draw(g2);
         g2.dispose();
     }
 }
