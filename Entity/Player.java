@@ -37,21 +37,28 @@ public class Player extends entity {
         GetPlayerImage();
     }
 
-    public void GetPlayerImage() {
-        try {
-            this.Up1 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_up_1.png"));
-            this.Down1 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_down_1.png"));
-            this.Left1 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_left_1.png"));
-            this.Right1 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_right_1.png"));
-            this.Up2 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_up_2.png"));
-            this.Down2 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_down_2.png"));
-            this.Left2 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_left_2.png"));
-            this.Right2 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_right_2.png"));
-
-
-        }catch (IOException e){
-            e.printStackTrace();
-        }
+    public void getPlayerImage() {
+        // Load from AssetHandler
+        this.up1 = AssetHandler.getInstance().getImage("player_up1");
+        this.down1 = AssetHandler.getInstance().getImage("player_down1");
+        this.left1 = AssetHandler.getInstance().getImage("player_left1");
+        this.right1 = AssetHandler.getInstance().getImage("player_right1");
+        this.up2 = AssetHandler.getInstance().getImage("player_up2");
+        this.down2 = AssetHandler.getInstance().getImage("player_down2");
+        this.left2 = AssetHandler.getInstance().getImage("player_left2");
+        this.right2 = AssetHandler.getInstance().getImage("player_right2");
+        this.up3 = AssetHandler.getInstance().getImage("player_up3");
+        this.down3 = AssetHandler.getInstance().getImage("player_down3");
+        this.left3 = AssetHandler.getInstance().getImage("player_left3");
+        this.right3 = AssetHandler.getInstance().getImage("player_right3");
+        this.up4 = AssetHandler.getInstance().getImage("player_up4");
+        this.down4 = AssetHandler.getInstance().getImage("player_down4");
+        this.left4 = AssetHandler.getInstance().getImage("player_left4");
+        this.right4 = AssetHandler.getInstance().getImage("player_right4");
+        this.idle1 = AssetHandler.getInstance().getImage("player_idle1");
+        this.idle2 = AssetHandler.getInstance().getImage("player_idle2");
+        this.idle3 = AssetHandler.getInstance().getImage("player_idle3");
+        this.idle4 = AssetHandler.getInstance().getImage("player_idle4");
     }
 
     public void update() {
