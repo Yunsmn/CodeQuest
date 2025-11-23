@@ -33,7 +33,7 @@ public class TileManager {
                 while (col < gamePanel.maxWorldCol) {
                     String[] Nums = line.split(" ");
                     int num =  Integer.parseInt(Nums[col]);
-                    MapTile[col][row] = num;
+                    mapTile[col][row] = num;
                     col++;
                 }
                 if (col == gamePanel.MaxWorldCol) {
