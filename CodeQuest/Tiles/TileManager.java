@@ -1,25 +1,27 @@
 package CodeQuest.Tiles;
 
 import CodeQuest.Main.GamePanel;
+import CodeQuest.Tiles.AssetHandler;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class TileManager {
-    public Tile[] Tiles;
+    public Tile[] tiles;
     GamePanel gamePanel;
-    public int[][] MapTile;
+    public int[][] mapTile;
 
     public TileManager(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
-        Tiles = new Tile[10];
+        tiles = new Tile[3]; // grass variants
         getTileImage();
-        MapTile = new int[gamePanel.MaxWorldCol][gamePanel.MaxWorldRow];
-        loadMap("/CodeQuest/res/Maps/WorldMap.txt");
+        mapTile = new int[gamePanel.maxWorldCol][gamePanel.maxWorldRow];
+        loadMap("/CodeQuest/res/Maps/WorldMap2.txt");
     }
 
     public void loadMap(String name) {
@@ -28,15 +30,15 @@ public class TileManager {
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
             int col =0;
             int row =0;
-            while (col < gamePanel.MaxWorldCol && row < gamePanel.MaxWorldRow) {
+            while (col < gamePanel.maxWorldCol && row < gamePanel.maxWorldRow) {
                 String line = reader.readLine();
-                while (col < gamePanel.MaxWorldCol) {
+                while (col < gamePanel.maxWorldCol) {
                     String[] Nums = line.split(" ");
                     int num =  Integer.parseInt(Nums[col]);
-                    MapTile[col][row] = num;
+                    mapTile[col][row] = num;
                     col++;
                 }
-                if (col == gamePanel.MaxWorldCol) {
+                if (col == gamePanel.maxWorldCol) {
                     row++;
                     col = 0;
                 }
@@ -49,48 +51,48 @@ public class TileManager {
     }
 
     public void getTileImage() {
-        try {
-            Tiles[0] = new Tile();
-            Tiles[0].image = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/tiles/grass.png"));
+        tiles[0] = new Tile();
+        tiles[0].image = AssetHandler.getInstance().getImage("terrain1");
 
-            Tiles[1] = new Tile();
-            Tiles[1].image = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/tiles/wall.png"));
-            Tiles[1].collison = true;
+        tiles[1] = new Tile();
+        tiles[1].image = AssetHandler.getInstance().getImage("terrain2");
 
-            Tiles[2] = new Tile();
-            Tiles[2].image = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/tiles/water.png"));
-            Tiles[2].collison = true;
-
-
-        }catch (IOException e){
-            e.printStackTrace();
-        }
+        tiles[2] = new Tile();
+        tiles[2].image = AssetHandler.getInstance().getImage("terrain3");
     }
 
     public void draw(Graphics2D g2) {
-        int Worldcol = 0;
-        int Worldrow = 0;
+        int worldCol = 0;
+        int worldRow = 0;
 
-        while (Worldcol < gamePanel.MaxWorldCol && Worldrow < gamePanel.MaxWorldRow) {
+        while (worldCol < gamePanel.maxWorldCol && worldRow < gamePanel.maxWorldRow) {
 
-            int WorldX = gamePanel.GameTileSize * Worldcol;
-            int WorldY = gamePanel.GameTileSize * Worldrow;
-            int ScreenX = WorldX - gamePanel.player.WorldX + gamePanel.player.ScreenX;
-            int ScreenY = WorldY - gamePanel.player.WorldY + gamePanel.player.ScreenY;
+            int worldX = gamePanel.gameTileSize * worldCol;
+            int worldY = gamePanel.gameTileSize * worldRow;
+            int screenX = worldX - gamePanel.player.worldX + gamePanel.player.screenX;
+            int screenY = worldY - gamePanel.player.worldY + gamePanel.player.screenY;
 
-            if (WorldX + gamePanel.GameTileSize > gamePanel.player.WorldX - gamePanel.player.ScreenX &&
-                    WorldY + gamePanel.GameTileSize > gamePanel.player.WorldY - gamePanel.player.ScreenY &&
-                    WorldX - gamePanel.GameTileSize < gamePanel.player.WorldX + gamePanel.player.ScreenX &&
-                    WorldY - 4*gamePanel.GameTileSize < gamePanel.player.WorldY + gamePanel.player.ScreenY) {
-
-                g2.drawImage(Tiles[MapTile[Worldcol][Worldrow]].image, ScreenX, ScreenY, gamePanel.GameTileSize, gamePanel.GameTileSize, null);
+            if (worldX + gamePanel.gameTileSize > gamePanel.player.worldX - gamePanel.player.screenX &&
+                    worldY + gamePanel.gameTileSize > gamePanel.player.worldY - gamePanel.player.screenY &&
+                    worldX - gamePanel.gameTileSize < gamePanel.player.worldX + gamePanel.player.screenX &&
+                    worldY - 4*gamePanel.gameTileSize < gamePanel.player.worldY + gamePanel.player.screenY) {
+                int tileNum = mapTile[worldCol][worldRow];
+                if ( 0 <= tileNum && tileNum <= 2 ) {
+                    BufferedImage img = tiles[tileNum].image;
+                    if (img != null) {
+                        g2.drawImage(img, screenX, screenY, gamePanel.gameTileSize, gamePanel.gameTileSize, null);
+                    } else {
+                        g2.setColor(Color.GREEN);
+                        g2.fillRect(screenX, screenY, gamePanel.gameTileSize, gamePanel.gameTileSize);
+                    }
+                }
             }
 
-            Worldcol++;
+            worldCol++;
 
-            if (Worldcol == gamePanel.MaxWorldCol) {
-                Worldcol = 0;
-                Worldrow++;
+            if (worldCol == gamePanel.maxWorldCol) {
+                worldCol = 0;
+                worldRow++;
             }
         }
     }

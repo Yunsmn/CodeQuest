@@ -1,6 +1,9 @@
 package CodeQuest.Main;
 
 import CodeQuest.Entity.entity;
+import CodeQuest.Tiles.MapObject;
+
+import java.awt.Rectangle;
 
 public class CollisionChecker {
     GamePanel gamePanel;
@@ -9,54 +12,81 @@ public class CollisionChecker {
         this.gamePanel = gamePanel;
     }
     public void checkTile(entity entity) {
-        int EntityWorldXleft = entity.WorldX + entity.Solidarea.x;
-        int EntityWorldXright = entity.WorldX + entity.Solidarea.x +  entity.Solidarea.width;
-        int EntityWorldYup = entity.WorldY + entity.Solidarea.y;
-        int EntityWorldYdown =  entity.WorldY + entity.Solidarea.y + entity.Solidarea.height;
+        int EntityWorldXleft = entity.worldX + entity.solidArea.x;
+        int EntityWorldXright = entity.worldX + entity.solidArea.x +  entity.solidArea.width;
+        int EntityWorldYup = entity.worldY + entity.solidArea.y;
+        int EntityWorldYdown =  entity.worldY + entity.solidArea.y + entity.solidArea.height;
 
-        int EntityLeftCol = EntityWorldXleft/gamePanel.GameTileSize;
-        int EntityRightCol = EntityWorldXright/gamePanel.GameTileSize;
-        int EntityUpRow = EntityWorldYup/gamePanel.GameTileSize;
-        int EntityDownRow = EntityWorldYdown/gamePanel.GameTileSize;
+        int EntityLeftCol = EntityWorldXleft/gamePanel.gameTileSize;
+        int EntityRightCol = EntityWorldXright/gamePanel.gameTileSize;
+        int EntityUpRow = EntityWorldYup/gamePanel.gameTileSize;
+        int EntityDownRow = EntityWorldYdown/gamePanel.gameTileSize;
 
         int tile1, tile2;
 
-        switch (entity.Direction) {
+        switch (entity.direction) {
             case "up" :
-                EntityUpRow = (EntityWorldYup - entity.speed) / gamePanel.GameTileSize;
-                tile1 = gamePanel.TileM.MapTile[EntityLeftCol][EntityUpRow];
-                tile2 = gamePanel.TileM.MapTile[EntityRightCol][EntityUpRow];
-                if (gamePanel.TileM.Tiles[tile1].collison || gamePanel.TileM.Tiles[tile2].collison) {
-                    entity.collisionON = true;
+                // Check objects only (no tile collision since map is all floor)
+                if (checkObjectCollision(entity, "up")) {
+                    entity.collisionOn = true;
                 }
                 break;
             case "down" :
-                EntityDownRow = (EntityWorldYdown - entity.speed) / gamePanel.GameTileSize;
-                tile1 = gamePanel.TileM.MapTile[EntityLeftCol][EntityDownRow];
-                tile2 = gamePanel.TileM.MapTile[EntityRightCol][EntityDownRow];
-                if (gamePanel.TileM.Tiles[tile1].collison || gamePanel.TileM.Tiles[tile2].collison) {
-                    entity.collisionON = true;
+                // Check objects only
+                if (checkObjectCollision(entity, "down")) {
+                    entity.collisionOn = true;
                 }
                 break;
             case "left" :
-                EntityLeftCol = (EntityWorldXleft - entity.speed) / gamePanel.GameTileSize;
-                tile1 = gamePanel.TileM.MapTile[EntityLeftCol][EntityUpRow];
-                tile2 = gamePanel.TileM.MapTile[EntityLeftCol][EntityDownRow];
-                if (gamePanel.TileM.Tiles[tile1].collison || gamePanel.TileM.Tiles[tile2].collison) {
-                    entity.collisionON = true;
+                // Check objects only
+                if (checkObjectCollision(entity, "left")) {
+                    entity.collisionOn = true;
                 }
                 break;
             case "right" :
-                EntityRightCol = (EntityWorldXright - entity.speed) / gamePanel.GameTileSize;
-                tile1 = gamePanel.TileM.MapTile[EntityRightCol][EntityUpRow];
-                tile2 = gamePanel.TileM.MapTile[EntityRightCol][EntityDownRow];
-                if (gamePanel.TileM.Tiles[tile1].collison || gamePanel.TileM.Tiles[tile2].collison) {
-                    entity.collisionON = true;
+                // Check objects only
+                if (checkObjectCollision(entity, "right")) {
+                    entity.collisionOn = true;
                 }
                 break;
         }
 
 
 
+    }
+
+    private boolean checkObjectCollision(entity entity, String direction) {
+        int futureX = entity.worldX;
+        int futureY = entity.worldY;
+        switch (direction) {
+            case "up":
+                futureY -= entity.speed;
+                break;
+            case "down":
+                futureY += entity.speed;
+                break;
+            case "left":
+                futureX -= entity.speed;
+                break;
+            case "right":
+                futureX += entity.speed;
+                break;
+        }
+        Rectangle futureSolid = new Rectangle(futureX + entity.solidArea.x, futureY + entity.solidArea.y, entity.solidArea.width, entity.solidArea.height);
+        for (MapObject obj : gamePanel.objM.objects) {
+            if (obj.collision) {
+                // Temporarily move to world coordinates
+                obj.solidArea.x = obj.worldX + obj.solidAreaDefaultX;
+                obj.solidArea.y = obj.worldY + obj.solidAreaDefaultY;
+                boolean intersects = futureSolid.intersects(obj.solidArea);
+                // Reset to relative
+                obj.solidArea.x = obj.solidAreaDefaultX;
+                obj.solidArea.y = obj.solidAreaDefaultY;
+                if (intersects) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
