@@ -111,5 +111,12 @@ tree 3 10
 tree 11 16
 tree 19 5
 tree 7 18
-tree 13 22
 tree 21 12
+bush 11 11
+bush 20 21
+bush 10 15
+bush 9 17
+bush 20 20
+bush 2 2
+bush 3 7
+bush 5 8

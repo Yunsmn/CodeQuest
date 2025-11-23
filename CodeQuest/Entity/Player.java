@@ -79,6 +79,24 @@ public class Player extends entity implements Drawable {
             collisionOn = false;
             gamePanel.collisionChecker.checkTile(this);
 
+            // Check collision with NPCs at future position
+            if (!collisionOn) {
+                Rectangle futureRect = new Rectangle(worldX + solidArea.x, worldY + solidArea.y, solidArea.width, solidArea.height);
+                switch (direction) {
+                    case "up": futureRect.y -= speed; break;
+                    case "down": futureRect.y += speed; break;
+                    case "left": futureRect.x -= speed; break;
+                    case "right": futureRect.x += speed; break;
+                }
+                for (NPC npc : gamePanel.npcM.npcs) {
+                    Rectangle npcRect = new Rectangle(npc.worldX + npc.solidArea.x, npc.worldY + npc.solidArea.y, npc.solidArea.width, npc.solidArea.height);
+                    if (futureRect.intersects(npcRect)) {
+                        collisionOn = true;
+                        break;
+                    }
+                }
+            }
+
             if (!collisionOn) {
                 switch (direction) {
                     case "up":
@@ -195,11 +213,7 @@ public class Player extends entity implements Drawable {
         }
         if (image != null) {
             g2.drawImage(image, screenX, screenY, gamePanel.gameTileSize, gamePanel.gameTileSize, null);
-        } else if (!direction.equals("idle")) {
-            g2.setColor(Color.BLUE);
-            g2.fillRect(screenX, screenY, gamePanel.gameTileSize, gamePanel.gameTileSize);
         }
-
     }
 
     @Override
@@ -209,6 +223,6 @@ public class Player extends entity implements Drawable {
 
     @Override
     public void draw(Graphics2D g2, int screenX, int screenY) {
-        drawPlayer(g2);  // Call the existing draw method, which uses this.screenX, this.screenY
+        drawPlayer(g2);
     }
 }
