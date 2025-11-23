@@ -33,6 +33,16 @@ public class MapObject implements Drawable {
                 g2.setColor(Color.BLUE);
                 g2.fillRect(screenX - 64, screenY - 64, 256, 256);
             }
+        } else if (name.equals("bush")) {
+            if (image != null) {
+                // Center the 47x42 bush in 64x64 tile
+                int offsetX = (64 - 47) / 2;
+                int offsetY = (64 - 42) / 2;
+                g2.drawImage(image, screenX + offsetX, screenY + offsetY, 47, 42, null);
+            } else {
+                g2.setColor(Color.GREEN);
+                g2.fillRect(screenX, screenY, 64, 64);
+            }
         } else {
             if (image != null) {
                 g2.drawImage(image, screenX, screenY, 64, 64, null);

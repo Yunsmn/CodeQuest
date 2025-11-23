@@ -105,10 +105,10 @@ public class GamePanel extends JPanel implements Runnable {
 
         // Add objects
         for (MapObject obj : objM.objects) {
-            if (obj.worldX + gameTileSize * 2 > player.worldX - player.screenX &&
-                obj.worldX - gameTileSize * 2 < player.worldX + player.screenX &&
-                obj.worldY + gameTileSize * 2 > player.worldY - player.screenY &&
-                obj.worldY - gameTileSize * 2 < player.worldY + player.screenY) {
+            if (obj.worldX + gameTileSize * 3 > player.worldX - player.screenX &&
+                obj.worldX - gameTileSize * 3 < player.worldX + player.screenX &&
+                obj.worldY + gameTileSize * 3 > player.worldY - player.screenY &&
+                obj.worldY - gameTileSize * 3 < player.worldY + player.screenY) {
                 drawables.add(obj);
             }
         }
@@ -136,10 +136,19 @@ public class GamePanel extends JPanel implements Runnable {
         g2.setColor(Color.RED);
         for (MapObject obj : objM.objects) {
             if (obj.collision) {
+                g2.setColor(Color.RED);
                 int screenX = obj.worldX - player.worldX + player.screenX;
                 int screenY = obj.worldY - player.worldY + player.screenY;
                 if (obj.worldX + gameTileSize > player.worldX - player.screenX &&
                     obj.worldX - gameTileSize < player.worldX + player.screenX) {
+                    g2.drawRect(screenX + obj.solidArea.x, screenY + obj.solidArea.y, obj.solidArea.width, obj.solidArea.height);
+                }
+            }else {
+                g2.setColor(Color.cyan);
+                int screenX = obj.worldX - player.worldX + player.screenX;
+                int screenY = obj.worldY - player.worldY + player.screenY;
+                if (obj.worldX + gameTileSize > player.worldX - player.screenX &&
+                        obj.worldX - gameTileSize < player.worldX + player.screenX) {
                     g2.drawRect(screenX + obj.solidArea.x, screenY + obj.solidArea.y, obj.solidArea.width, obj.solidArea.height);
                 }
             }
@@ -150,8 +159,4 @@ public class GamePanel extends JPanel implements Runnable {
 
         g2.dispose();
     }
-
-
-
-
 }

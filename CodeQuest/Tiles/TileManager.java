@@ -18,7 +18,7 @@ public class TileManager {
 
     public TileManager(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
-        tiles = new Tile[3]; // grass variants
+        tiles = new Tile[10]; // grass variants
         getTileImage();
         mapTile = new int[gamePanel.maxWorldCol][gamePanel.maxWorldRow];
         loadMap("/CodeQuest/res/Maps/WorldMap2.txt");

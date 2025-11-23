@@ -195,11 +195,7 @@ public class Player extends entity implements Drawable {
         }
         if (image != null) {
             g2.drawImage(image, screenX, screenY, gamePanel.gameTileSize, gamePanel.gameTileSize, null);
-        } else if (!direction.equals("idle")) {
-            g2.setColor(Color.BLUE);
-            g2.fillRect(screenX, screenY, gamePanel.gameTileSize, gamePanel.gameTileSize);
         }
-
     }
 
     @Override
@@ -209,6 +205,6 @@ public class Player extends entity implements Drawable {
 
     @Override
     public void draw(Graphics2D g2, int screenX, int screenY) {
-        drawPlayer(g2);  // Call the existing draw method, which uses this.screenX, this.screenY
+        drawPlayer(g2);
     }
 }
