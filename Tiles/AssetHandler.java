@@ -57,6 +57,10 @@ public class AssetHandler {
         loadImage("beach_bottom_left", "/CodeQuest/res/tiles/Beach/beach_bottom_left.png");
         loadImage("beach_bottom_right", "/CodeQuest/res/tiles/Beach/beach_bottom_right.png");
         loadImage("tree", "/CodeQuest/res/tiles/tree2.png");
+        loadImage("terrain1", "/CodeQuest/res/tiles/terrain1.png");
+        loadImage("tree1", "/CodeQuest/res/tiles/tree1.png");
+        loadImage("terrain2", "/CodeQuest/res/tiles/terrain2.png");
+        loadImage("terrain3", "/CodeQuest/res/tiles/terrain3.png");
         // Add more objects
     }
 
