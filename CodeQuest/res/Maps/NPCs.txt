@@ -1,0 +1,3 @@
+NPC 1 1 true Hello traveler!
+NPC 4 3 true Hello!
+NPC 10 5 true hey

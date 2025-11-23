@@ -29,6 +29,7 @@ public class ObjectManager {
                 String[] parts = line.split(" ");
                 if (parts.length >= 3) {
                     String name = parts[0];
+                    if (name.startsWith("npc")) continue; // Skip NPCs, handled by NPCManager
                     int x = Integer.parseInt(parts[1]);
                     int y = Integer.parseInt(parts[2]);
                     MapObject obj = createObject(name);

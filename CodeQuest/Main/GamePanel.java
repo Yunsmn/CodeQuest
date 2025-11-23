@@ -1,5 +1,7 @@
 package CodeQuest.Main;
 
+import CodeQuest.Entity.NPC;
+import CodeQuest.Entity.NPCManager;
 import CodeQuest.Entity.Player;
 import CodeQuest.Main.Drawable;
 import CodeQuest.Tiles.MapObject;
@@ -38,6 +40,13 @@ public class GamePanel extends JPanel implements Runnable {
     public final int maxWorldRow = 25;
     public final int worldWidth = maxWorldCol * gameTileSize;
     public final int worldHeight = maxWorldRow * gameTileSize;
+    public NPCManager npcM = new NPCManager(this);
+
+    public int gameState = 0;
+    public final int pauseState = 0;
+    public final int playState = 1;
+
+    GUI ui =  new GUI(this);
 
 
 
@@ -51,6 +60,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+        this.gameState = playState;
         player.worldY = 320; // Position player to see top border
     }
 
@@ -90,7 +100,14 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-        player.update();
+
+        if (gameState == playState) {
+            player.update();
+            npcM.update();
+        }
+        if (gameState == pauseState) {
+
+        }
     }
 
     public void paintComponent(Graphics g) {
@@ -115,6 +132,16 @@ public class GamePanel extends JPanel implements Runnable {
 
         // Add player
         drawables.add(player);
+        int npcCount = 0;
+        for (NPC npc : npcM.npcs) {
+            if (npc.worldX + gameTileSize * 4 > player.worldX - player.screenX &&
+                    npc.worldX - gameTileSize * 4 < player.worldX + player.screenX &&
+                    npc.worldY + gameTileSize * 4 > player.worldY - player.screenY &&
+                    npc.worldY - gameTileSize * 4 < player.worldY + player.screenY) {
+                drawables.add(npc);
+                npcCount++;
+            }
+        }
 
         drawables.sort(Comparator.comparingInt(Drawable::getSortY));
 
@@ -124,32 +151,41 @@ public class GamePanel extends JPanel implements Runnable {
             if (d instanceof Player) {
                 screenX = player.screenX;
                 screenY = player.screenY;
-            } else {
+            } else if (d instanceof MapObject) {
                 MapObject obj = (MapObject) d;
                 screenX = obj.worldX - player.worldX + player.screenX;
                 screenY = obj.worldY - player.worldY + player.screenY;
+            } else if (d instanceof NPC) {
+                NPC npc = (NPC) d;
+                screenX = npc.worldX - player.worldX + player.screenX;
+                screenY = npc.worldY - player.worldY + player.screenY;
+            } else {
+                continue; // Unknown drawable
             }
             d.draw(g2, screenX, screenY);
         }
 
         // Debug: Draw collision rects
         g2.setColor(Color.RED);
-        for (MapObject obj : objM.objects) {
-            if (obj.collision) {
-                g2.setColor(Color.RED);
-                int screenX = obj.worldX - player.worldX + player.screenX;
-                int screenY = obj.worldY - player.worldY + player.screenY;
-                if (obj.worldX + gameTileSize > player.worldX - player.screenX &&
-                    obj.worldX - gameTileSize < player.worldX + player.screenX) {
-                    g2.drawRect(screenX + obj.solidArea.x, screenY + obj.solidArea.y, obj.solidArea.width, obj.solidArea.height);
-                }
-            }else {
-                g2.setColor(Color.cyan);
-                int screenX = obj.worldX - player.worldX + player.screenX;
-                int screenY = obj.worldY - player.worldY + player.screenY;
-                if (obj.worldX + gameTileSize > player.worldX - player.screenX &&
+        for (Object o : objM.objects) {
+            if (o instanceof MapObject) {
+                MapObject obj = (MapObject) o;
+                if (obj.collision) {
+                    g2.setColor(Color.RED);
+                    int screenX = obj.worldX - player.worldX + player.screenX;
+                    int screenY = obj.worldY - player.worldY + player.screenY;
+                    if (obj.worldX + gameTileSize > player.worldX - player.screenX &&
                         obj.worldX - gameTileSize < player.worldX + player.screenX) {
-                    g2.drawRect(screenX + obj.solidArea.x, screenY + obj.solidArea.y, obj.solidArea.width, obj.solidArea.height);
+                        g2.drawRect(screenX + obj.solidArea.x, screenY + obj.solidArea.y, obj.solidArea.width, obj.solidArea.height);
+                    }
+                } else {
+                    g2.setColor(Color.cyan);
+                    int screenX = obj.worldX - player.worldX + player.screenX;
+                    int screenY = obj.worldY - player.worldY + player.screenY;
+                    if (obj.worldX + gameTileSize > player.worldX - player.screenX &&
+                            obj.worldX - gameTileSize < player.worldX + player.screenX) {
+                        g2.drawRect(screenX + obj.solidArea.x, screenY + obj.solidArea.y, obj.solidArea.width, obj.solidArea.height);
+                    }
                 }
             }
         }
@@ -157,6 +193,18 @@ public class GamePanel extends JPanel implements Runnable {
         g2.setColor(Color.BLUE);
         g2.drawRect(player.screenX + player.solidArea.x, player.screenY + player.solidArea.y, player.solidArea.width, player.solidArea.height);
 
+        // Draw NPC collision rects
+        g2.setColor(Color.GREEN);
+        for (NPC npc : npcM.npcs) {
+            if (npc.worldX + gameTileSize > player.worldX - player.screenX &&
+                    npc.worldX - gameTileSize < player.worldX + player.screenX) {
+                int screenX = npc.worldX - player.worldX + player.screenX;
+                int screenY = npc.worldY - player.worldY + player.screenY;
+                g2.drawRect(screenX + npc.solidArea.x, screenY + npc.solidArea.y, npc.solidArea.width, npc.solidArea.height);
+            }
+        }
+
+        ui.draw(g2);
         g2.dispose();
     }
 }

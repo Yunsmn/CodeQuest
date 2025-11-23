@@ -1,5 +1,6 @@
 package CodeQuest.Main;
 
+import CodeQuest.Entity.NPC;
 import CodeQuest.Entity.entity;
 import CodeQuest.Tiles.MapObject;
 
@@ -88,5 +89,68 @@ public class CollisionChecker {
             }
         }
         return false;
+    }
+    public void checkNPCCollision(entity entity) {
+        int futureX = entity.worldX;
+        int futureY = entity.worldY;
+
+        switch (entity.direction) {
+            case "up": futureY -= entity.speed; break;
+            case "down": futureY += entity.speed; break;
+            case "left": futureX -= entity.speed; break;
+            case "right": futureX += entity.speed; break;
+        }
+
+        Rectangle futureSolid = new Rectangle(
+                futureX + entity.solidArea.x,
+                futureY + entity.solidArea.y,
+                entity.solidArea.width,
+                entity.solidArea.height
+        );
+
+        // Check collision with player
+        Rectangle playerRect = new Rectangle(
+                gamePanel.player.worldX + gamePanel.player.solidArea.x,
+                gamePanel.player.worldY + gamePanel.player.solidArea.y,
+                gamePanel.player.solidArea.width,
+                gamePanel.player.solidArea.height
+        );
+
+        if (futureSolid.intersects(playerRect)) {
+            entity.collisionOn = true;
+            return;
+        }
+
+        // Check collision with other NPCs
+        for (NPC npc : gamePanel.npcM.npcs) {
+            if (npc != entity) { // Don't check collision with self
+                Rectangle npcRect = new Rectangle(
+                        npc.worldX + npc.solidArea.x,
+                        npc.worldY + npc.solidArea.y,
+                        npc.solidArea.width,
+                        npc.solidArea.height
+                );
+
+                if (futureSolid.intersects(npcRect)) {
+                    entity.collisionOn = true;
+                    return;
+                }
+            }
+        }
+
+        // Check collision with objects
+        for (MapObject obj : gamePanel.objM.objects) {
+            if (obj.collision) {
+                obj.solidArea.x = obj.worldX + obj.solidAreaDefaultX;
+                obj.solidArea.y = obj.worldY + obj.solidAreaDefaultY;
+                boolean intersects = futureSolid.intersects(obj.solidArea);
+                obj.solidArea.x = obj.solidAreaDefaultX;
+                obj.solidArea.y = obj.solidAreaDefaultY;
+                if (intersects) {
+                    entity.collisionOn = true;
+                    return;
+                }
+            }
+        }
     }
 }
