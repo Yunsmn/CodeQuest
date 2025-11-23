@@ -55,10 +55,8 @@ public class TileManager {
         tiles[1] = new Tile();
         tiles[1].image = AssetHandler.getInstance().getImage("terrain2");
 
-
-        }catch (IOException e){
-            e.printStackTrace();
-        }
+        tiles[2] = new Tile();
+        tiles[2].image = AssetHandler.getInstance().getImage("terrain3");
     }
 
     public void draw(Graphics2D g2) {
