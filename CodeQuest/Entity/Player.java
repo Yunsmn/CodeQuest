@@ -1,148 +1,214 @@
 package CodeQuest.Entity;
 
+import CodeQuest.Main.Drawable;
 import CodeQuest.Main.GamePanel;
 import CodeQuest.Main.KeyHandler;
+import CodeQuest.Tiles.AssetHandler;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
-public class Player extends entity {
+public class Player extends entity implements Drawable {
     GamePanel gamePanel;
     KeyHandler keyH;
-    public final int ScreenX;
-    public final int ScreenY;
+    public final int screenX;
+    public final int screenY;
 
 
     public Player(GamePanel gamePanel, KeyHandler keyH) {
         this.gamePanel = gamePanel;
         this.keyH = keyH;
-        setdefault();
-        ScreenX = (int) (gamePanel.GameTileSize * 7.5);
-        ScreenY = (int) (gamePanel.GameTileSize*5);
-        Solidarea = new Rectangle();
-        Solidarea.x = 8;
-        Solidarea.y = 16;
-        Solidarea.width = gamePanel.GameTileSize/2;
-        Solidarea.height = gamePanel.GameTileSize/2;
+        setDefault();
+        screenX = (int) (gamePanel.gameTileSize * 7.5);
+        screenY = (int) (gamePanel.gameTileSize * 5);
+        solidArea = new Rectangle();
+        solidArea.x = 8;
+        solidArea.y = 16;
+        solidArea.width = gamePanel.gameTileSize / 2;
+        solidArea.height = gamePanel.gameTileSize / 2;
 
     }
 
-    public void setdefault() {
-        WorldX = 100;
-        WorldY = 100;
-        speed = 4;
-        Direction = "down";
-        GetPlayerImage();
+    public void setDefault() {
+        worldX = 100;
+        worldY = 100;
+        speed = 10;
+        direction = "down";
+        getPlayerImage();
     }
 
-    public void GetPlayerImage() {
-        try {
-            this.Up1 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_up_1.png"));
-            this.Down1 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_down_1.png"));
-            this.Left1 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_left_1.png"));
-            this.Right1 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_right_1.png"));
-            this.Up2 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_up_2.png"));
-            this.Down2 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_down_2.png"));
-            this.Left2 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_left_2.png"));
-            this.Right2 = ImageIO.read(getClass().getResourceAsStream("/CodeQuest/res/player/boy_right_2.png"));
-
-
-        }catch (IOException e){
-            e.printStackTrace();
-        }
+    public void getPlayerImage() {
+        // Load from AssetHandler
+        this.up1 = AssetHandler.getInstance().getImage("player_up1");
+        this.down1 = AssetHandler.getInstance().getImage("player_down1");
+        this.left1 = AssetHandler.getInstance().getImage("player_left1");
+        this.right1 = AssetHandler.getInstance().getImage("player_right1");
+        this.up2 = AssetHandler.getInstance().getImage("player_up2");
+        this.down2 = AssetHandler.getInstance().getImage("player_down2");
+        this.left2 = AssetHandler.getInstance().getImage("player_left2");
+        this.right2 = AssetHandler.getInstance().getImage("player_right2");
+        this.up3 = AssetHandler.getInstance().getImage("player_up3");
+        this.down3 = AssetHandler.getInstance().getImage("player_down3");
+        this.left3 = AssetHandler.getInstance().getImage("player_left3");
+        this.right3 = AssetHandler.getInstance().getImage("player_right3");
+        this.up4 = AssetHandler.getInstance().getImage("player_up4");
+        this.down4 = AssetHandler.getInstance().getImage("player_down4");
+        this.left4 = AssetHandler.getInstance().getImage("player_left4");
+        this.right4 = AssetHandler.getInstance().getImage("player_right4");
+        this.idle1 = AssetHandler.getInstance().getImage("player_idle1");
+        this.idle2 = AssetHandler.getInstance().getImage("player_idle2");
+        this.idle3 = AssetHandler.getInstance().getImage("player_idle3");
+        this.idle4 = AssetHandler.getInstance().getImage("player_idle4");
     }
 
     public void update() {
         if (keyH.UpPressed || keyH.DownPressed || keyH.LeftPressed || keyH.RightPressed) {
             if (keyH.UpPressed) {
-                Direction = "up";
+                direction = "up";
             }
             if (keyH.DownPressed) {
-                Direction = "down";
+                direction = "down";
             }
             if (keyH.LeftPressed) {
-                Direction = "left";
+                direction = "left";
             }
             if (keyH.RightPressed) {
-                Direction = "right";
+                direction = "right";
             }
 
-            collisionON = false;
-            gamePanel.CheckeColl.checkTile(this);
+            collisionOn = false;
+            gamePanel.collisionChecker.checkTile(this);
 
-            if (!collisionON) {
-                switch (Direction) {
+            if (!collisionOn) {
+                switch (direction) {
                     case "up":
-                        WorldY = WorldY - speed;
+                        worldY = worldY - speed;
                         break;
                     case "down":
-                        WorldY = WorldY + speed;
+                        worldY = worldY + speed;
                         break;
                     case "left":
-                        WorldX = WorldX - speed;
+                        worldX = worldX - speed;
                         break;
-                    case  "right":
-                        WorldX = WorldX + speed;
+                    case "right":
+                        worldX = worldX + speed;
                         break;
                 }
             }
 
-            SpriteCounter++;
-            if (SpriteCounter > 11) {
-                if (SpriteNum == 1) {
-                    SpriteNum = 2;
-                } else if  (SpriteNum == 2) {
-                    SpriteNum = 1;
+            long now = System.nanoTime();
+            if (now - lastFrameTime > frameDelay) {
+                spriteNum++;
+                if (spriteNum > 4) {
+                    spriteNum = 1;
                 }
-                SpriteCounter = 0;
+                lastFrameTime = now;
             }
-        }
-        else {
-            Direction = "down";
+        } else {
+            direction = "idle";
+            long now = System.nanoTime();
+            if (now - lastFrameTime > frameDelay) {
+                spriteNum++;
+                if (spriteNum > 4) {
+                    spriteNum = 1;
+                }
+                lastFrameTime = now;
+            }
         }
 
     }
 
-    public void draw(Graphics2D g2) {
+    public void drawPlayer(Graphics2D g2) {
         BufferedImage image = null;
 
-        switch (Direction) {
+        switch (direction) {
             case "up":
-                if (SpriteNum == 1) {
-                    image = Up1;
+                if (spriteNum == 1) {
+                    image = up1;
                 }
-                if  (SpriteNum == 2) {
-                    image = Up2;
+                if (spriteNum == 2) {
+                    image = up2;
+                }
+                if (spriteNum == 3) {
+                    image = up3;
+                }
+                if (spriteNum == 4) {
+                    image = up4;
                 }
                 break;
             case "down":
-                if (SpriteNum == 1) {
-                    image = Down1;
+                if (spriteNum == 1) {
+                    image = down1;
                 }
-                if  (SpriteNum == 2) {
-                    image = Down2;
+                if (spriteNum == 2) {
+                    image = down2;
+                }
+                if (spriteNum == 3) {
+                    image = down3;
+                }
+                if (spriteNum == 4) {
+                    image = down4;
                 }
                 break;
             case "left":
-                if (SpriteNum == 1) {
-                    image = Left1;
+                if (spriteNum == 1) {
+                    image = left1;
                 }
-                if  (SpriteNum == 2) {
-                    image = Left2;
+                if (spriteNum == 2) {
+                    image = left2;
+                }
+                if (spriteNum == 3) {
+                    image = left3;
+                }
+                if (spriteNum == 4) {
+                    image = left4;
                 }
                 break;
             case "right":
-                if (SpriteNum == 1) {
-                    image = Right1;
+                if (spriteNum == 1) {
+                    image = right1;
                 }
-                if  (SpriteNum == 2) {
-                    image = Right2;
+                if (spriteNum == 2) {
+                    image = right2;
+                }
+                if (spriteNum == 3) {
+                    image = right3;
+                }
+                if (spriteNum == 4) {
+                    image = right4;
                 }
                 break;
-         }
-        g2.drawImage(image, ScreenX, ScreenY,gamePanel.GameTileSize,gamePanel.GameTileSize, null);
+            case "idle":
+                if (spriteNum == 1) {
+                    image = idle1;
+                }
+                if (spriteNum == 2) {
+                    image = idle2;
+                }
+                if (spriteNum == 3) {
+                    image = idle3;
+                }
+                if (spriteNum == 4) {
+                    image = idle4;
+                }
+                break;
+        }
+        if (image != null) {
+            g2.drawImage(image, screenX, screenY, gamePanel.gameTileSize, gamePanel.gameTileSize, null);
+        } else if (!direction.equals("idle")) {
+            g2.setColor(Color.BLUE);
+            g2.fillRect(screenX, screenY, gamePanel.gameTileSize, gamePanel.gameTileSize);
+        }
 
+    }
+
+    @Override
+    public int getSortY() {
+        return worldY + solidArea.y + solidArea.height;
+    }
+
+    @Override
+    public void draw(Graphics2D g2, int screenX, int screenY) {
+        drawPlayer(g2);  // Call the existing draw method, which uses this.screenX, this.screenY
     }
 }

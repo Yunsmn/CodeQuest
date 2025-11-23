@@ -17,6 +17,6 @@ public class Main {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
-        gamePanel.StartGameThread();
+        gamePanel.startGameThread();
     }
 }
