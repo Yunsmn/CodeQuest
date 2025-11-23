@@ -70,12 +70,20 @@ public class TileManager {
             int screenX = worldX - gamePanel.player.worldX + gamePanel.player.screenX;
             int screenY = worldY - gamePanel.player.worldY + gamePanel.player.screenY;
 
-            if (WorldX + gamePanel.GameTileSize > gamePanel.player.WorldX - gamePanel.player.ScreenX &&
-                    WorldY + gamePanel.GameTileSize > gamePanel.player.WorldY - gamePanel.player.ScreenY &&
-                    WorldX - gamePanel.GameTileSize < gamePanel.player.WorldX + gamePanel.player.ScreenX &&
-                    WorldY - 4*gamePanel.GameTileSize < gamePanel.player.WorldY + gamePanel.player.ScreenY) {
-
-                g2.drawImage(Tiles[MapTile[Worldcol][Worldrow]].image, ScreenX, ScreenY, gamePanel.GameTileSize, gamePanel.GameTileSize, null);
+            if (worldX + gamePanel.gameTileSize > gamePanel.player.worldX - gamePanel.player.screenX &&
+                    worldY + gamePanel.gameTileSize > gamePanel.player.worldY - gamePanel.player.screenY &&
+                    worldX - gamePanel.gameTileSize < gamePanel.player.worldX + gamePanel.player.screenX &&
+                    worldY - 4*gamePanel.gameTileSize < gamePanel.player.worldY + gamePanel.player.screenY) {
+                int tileNum = mapTile[worldCol][worldRow];
+                if ( 0 <= tileNum && tileNum <= 2 ) {
+                    BufferedImage img = tiles[tileNum].image;
+                    if (img != null) {
+                        g2.drawImage(img, screenX, screenY, gamePanel.gameTileSize, gamePanel.gameTileSize, null);
+                    } else {
+                        g2.setColor(Color.GREEN);
+                        g2.fillRect(screenX, screenY, gamePanel.gameTileSize, gamePanel.gameTileSize);
+                    }
+                }
             }
 
             Worldcol++;
