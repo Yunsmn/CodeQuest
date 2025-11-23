@@ -89,7 +89,7 @@ public class ObjectManager {
             // Image assigned later based on position
         } else if (name.equals("tree")) {
             obj.collision = true;
-            obj.solidArea = new Rectangle(53, 133, 32, 59);  // Trunk collision shifted +64 x/y
+            obj.solidArea = new Rectangle(50, 133, 32, 59);  // Trunk collision shifted +64 x/y
             obj.solidAreaDefaultX = obj.solidArea.x;
             obj.solidAreaDefaultY = obj.solidArea.y;
             // Randomly choose tree or tree1
