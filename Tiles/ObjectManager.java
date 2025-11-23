@@ -103,8 +103,16 @@ public class ObjectManager {
             // Randomly choose tree or tree1
             String treeKey = (Math.random() < 0.5) ? "tree" : "tree1";
             obj.image = AssetHandler.getInstance().getImage(treeKey);
+        } else if (name.equals("bush")) {
+            obj.collision = false;
+            obj.solidArea = new Rectangle(8, 11, 47, 42);  // Full bush image area
+            obj.solidAreaDefaultX = obj.solidArea.x;
+            obj.solidAreaDefaultY = obj.solidArea.y;
+            // Randomly choose bush1 or bush2
+            String bushKey = (Math.random() < 0.5) ? "bush1" : "bush2";
+            obj.image = AssetHandler.getInstance().getImage(bushKey);
         }
-        // Add other objects
+
         return obj; // Default
     }
 }

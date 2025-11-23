@@ -61,7 +61,9 @@ public class AssetHandler {
         loadImage("tree1", "/CodeQuest/res/tiles/tree1.png");
         loadImage("terrain2", "/CodeQuest/res/tiles/terrain2.png");
         loadImage("terrain3", "/CodeQuest/res/tiles/terrain3.png");
-        // Add more objects
+        loadImage("bush1", "/CodeQuest/res/tiles/bush1.png");
+        loadImage("bush2", "/CodeQuest/res/tiles/bush2.png");
+
     }
 
     private void loadImage(String key, String path) {
