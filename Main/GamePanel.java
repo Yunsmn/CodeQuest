@@ -1,5 +1,7 @@
 package CodeQuest.Main;
 
+import CodeQuest.Entity.NPC;
+import CodeQuest.Entity.NPCManager;
 import CodeQuest.Entity.Player;
 import CodeQuest.Main.Drawable;
 import CodeQuest.Tiles.MapObject;
@@ -38,6 +40,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int maxWorldRow = 25;
     public final int worldWidth = maxWorldCol * gameTileSize;
     public final int worldHeight = maxWorldRow * gameTileSize;
+    public NPCManager npcM = new NPCManager(this);
 
     public int gameState = 0;
     public final int pauseState = 0;
@@ -100,6 +103,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (gameState == playState) {
             player.update();
+            npcM.update();
         }
         if (gameState == pauseState) {
 
@@ -128,6 +132,14 @@ public class GamePanel extends JPanel implements Runnable {
 
         // Add player
         drawables.add(player);
+        for (NPC npc : npcM.npcs) {
+            if (npc.worldX + gameTileSize > player.worldX - player.screenX &&
+                    npc.worldX - gameTileSize < player.worldX + player.screenX &&
+                    npc.worldY + gameTileSize > player.worldY - player.screenY &&
+                    npc.worldY - gameTileSize < player.worldY + player.screenY) {
+                drawables.add(npc);
+            }
+        }
 
         drawables.sort(Comparator.comparingInt(Drawable::getSortY));
 

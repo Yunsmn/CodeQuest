@@ -64,6 +64,11 @@ public class AssetHandler {
         loadImage("bush1", "/CodeQuest/res/tiles/bush1.png");
         loadImage("bush2", "/CodeQuest/res/tiles/bush2.png");
 
+        loadImage("NPC_idle1", "/CodeQuest/res/tiles/NPC_idle1.png");
+        loadImage("NPC_idle2", "/CodeQuest/res/tiles/NPC_Idle2.png");
+        loadImage("NPC_idle3", "/CodeQuest/res/tiles/NPC_Idle3.png");
+        loadImage("NPC_idle4", "/CodeQuest/res/tiles/NPC_Idle4.png");
+
     }
 
     private void loadImage(String key, String path) {
