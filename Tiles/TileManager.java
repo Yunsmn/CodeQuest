@@ -65,10 +65,10 @@ public class TileManager {
 
         while (worldCol < gamePanel.maxWorldCol && worldRow < gamePanel.maxWorldRow) {
 
-            int WorldX = gamePanel.GameTileSize * Worldcol;
-            int WorldY = gamePanel.GameTileSize * Worldrow;
-            int ScreenX = WorldX - gamePanel.player.WorldX + gamePanel.player.ScreenX;
-            int ScreenY = WorldY - gamePanel.player.WorldY + gamePanel.player.ScreenY;
+            int worldX = gamePanel.gameTileSize * worldCol;
+            int worldY = gamePanel.gameTileSize * worldRow;
+            int screenX = worldX - gamePanel.player.worldX + gamePanel.player.screenX;
+            int screenY = worldY - gamePanel.player.worldY + gamePanel.player.screenY;
 
             if (WorldX + gamePanel.GameTileSize > gamePanel.player.WorldX - gamePanel.player.ScreenX &&
                     WorldY + gamePanel.GameTileSize > gamePanel.player.WorldY - gamePanel.player.ScreenY &&
