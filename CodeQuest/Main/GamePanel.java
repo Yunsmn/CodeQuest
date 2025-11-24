@@ -32,7 +32,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Player player = new Player(this, keyH);
 
     TileManager tileM = new TileManager(this);
-    ObjectManager objM = new ObjectManager(this);
+    public ObjectManager objM = new ObjectManager(this);
 
     public CollisionChecker collisionChecker = new CollisionChecker(this);
 
@@ -46,7 +46,10 @@ public class GamePanel extends JPanel implements Runnable {
     public final int pauseState = 0;
     public final int playState = 1;
 
-    GUI ui =  new GUI(this);
+    GUI ui = new GUI(this);
+    
+    // COMMAND PARSER INTEGRATION
+    public CommandParser commandParser;
 
 
 
@@ -62,6 +65,11 @@ public class GamePanel extends JPanel implements Runnable {
         this.setFocusable(true);
         this.gameState = playState;
         player.worldY = 320; // Position player to see top border
+        
+        // INITIALIZE COMMAND PARSER
+        commandParser = new CommandParser(this);
+        commandParser.setCommandDelay(300);  // ← ADJUST THIS
+
     }
 
     void startGameThread() {
@@ -102,8 +110,12 @@ public class GamePanel extends JPanel implements Runnable {
     public void update() {
 
         if (gameState == playState) {
+            commandParser.adapter.update();
+
             player.update();
             npcM.update();
+            
+            // UPDATE COMMAND PARSER
         }
         if (gameState == pauseState) {
 

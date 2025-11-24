@@ -5,7 +5,7 @@ import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
     GamePanel gamePanel;
-    public boolean UpPressed,  DownPressed, LeftPressed, RightPressed;
+    public boolean UpPressed, DownPressed, LeftPressed, RightPressed;
 
     public KeyHandler(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
@@ -13,12 +13,14 @@ public class KeyHandler implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
-
+        // Not used
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
+        
+        // Arrow keys for movement
         if (code == KeyEvent.VK_UP) {
             UpPressed = true;
         }
@@ -30,13 +32,20 @@ public class KeyHandler implements KeyListener {
         }
         if (code == KeyEvent.VK_RIGHT) {
             RightPressed = true;
-        } if (code == KeyEvent.VK_ESCAPE) {
+        }
+        
+        // ESC key for pause/unpause
+        if (code == KeyEvent.VK_ESCAPE) {
             if (gamePanel.gameState == gamePanel.playState) {
                 gamePanel.gameState = gamePanel.pauseState;
-            } else if (gamePanel.gameState == gamePanel.pauseState ) {
+                System.out.println("⏸️  GAME PAUSED - Press ESC to resume");
+            } else if (gamePanel.gameState == gamePanel.pauseState) {
                 gamePanel.gameState = gamePanel.playState;
+                System.out.println("▶️  GAME RESUMED");
             }
         }
+        
+
     }
 
     @Override

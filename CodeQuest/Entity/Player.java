@@ -3,6 +3,7 @@ package CodeQuest.Entity;
 import CodeQuest.Main.Drawable;
 import CodeQuest.Main.GamePanel;
 import CodeQuest.Main.KeyHandler;
+import CodeQuest.Entity.NPC;
 import CodeQuest.Tiles.AssetHandler;
 
 import java.awt.*;
@@ -14,6 +15,12 @@ public class Player extends entity implements Drawable {
     public final int screenX;
     public final int screenY;
 
+    // Command movement
+    public String commandDirection;
+    public long commandMoveEndTime;
+    public int commandMoveDuration;
+    public int commandSpeed;
+    public long commandFrameDelay;
 
     public Player(GamePanel gamePanel, KeyHandler keyH) {
         this.gamePanel = gamePanel;
@@ -27,12 +34,19 @@ public class Player extends entity implements Drawable {
         solidArea.width = gamePanel.gameTileSize / 2;
         solidArea.height = gamePanel.gameTileSize / 2;
 
+        // Command movement fields
+        commandDirection = null;
+        commandMoveEndTime = 0;
+        commandMoveDuration = 500; // 0.5 seconds
+        commandSpeed = 2; // Slower for smooth one-tile movement
+        commandFrameDelay = 100_000_000; // Faster animation for commands
+
     }
 
     public void setDefault() {
         worldX = 100;
         worldY = 100;
-        speed = 10;
+        speed = 4;
         direction = "down";
         getPlayerImage();
     }
@@ -62,7 +76,60 @@ public class Player extends entity implements Drawable {
     }
 
     public void update() {
-        if (keyH.UpPressed || keyH.DownPressed || keyH.LeftPressed || keyH.RightPressed) {
+        // Handle command movement
+        if (commandDirection != null && System.currentTimeMillis() < commandMoveEndTime) {
+            direction = commandDirection;
+            collisionOn = false;
+            gamePanel.collisionChecker.checkTile(this);
+
+            // Check collision with NPCs
+            if (!collisionOn) {
+                Rectangle futureRect = new Rectangle(worldX + solidArea.x, worldY + solidArea.y, solidArea.width, solidArea.height);
+                switch (direction) {
+                    case "up": futureRect.y -= commandSpeed; break;
+                    case "down": futureRect.y += commandSpeed; break;
+                    case "left": futureRect.x -= commandSpeed; break;
+                    case "right": futureRect.x += commandSpeed; break;
+                }
+                for (NPC npc : gamePanel.npcM.npcs) {
+                    Rectangle npcRect = new Rectangle(npc.worldX + npc.solidArea.x, npc.worldY + npc.solidArea.y, npc.solidArea.width, npc.solidArea.height);
+                    if (futureRect.intersects(npcRect)) {
+                        collisionOn = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!collisionOn) {
+                switch (direction) {
+                    case "up": worldY -= commandSpeed; break;
+                    case "down": worldY += commandSpeed; break;
+                    case "left": worldX -= commandSpeed; break;
+                    case "right": worldX += commandSpeed; break;
+                }
+
+                // Update animation with faster delay
+                long now = System.nanoTime();
+                if (now - lastFrameTime > commandFrameDelay) {
+                    spriteNum++;
+                    if (spriteNum > 4) spriteNum = 1;
+                    lastFrameTime = now;
+                }
+            } else {
+                // Stop command movement on collision
+                commandDirection = null;
+                commandMoveEndTime = 0;
+            }
+        } else if (commandDirection != null) {
+            // Time expired, stop command movement
+            commandDirection = null;
+        }
+
+        // Allow keyboard control only when command parser is not executing
+        // This prevents conflicts between keyboard and command movement
+        boolean commandsExecuting = (gamePanel.commandParser != null && gamePanel.commandParser.isExecuting());
+
+        if (commandsExecuting && (keyH.UpPressed || keyH.DownPressed || keyH.LeftPressed || keyH.RightPressed)) {
             if (keyH.UpPressed) {
                 direction = "up";
             }
@@ -122,8 +189,19 @@ public class Player extends entity implements Drawable {
                 }
                 lastFrameTime = now;
             }
-        } else {
+        } else if (!commandsExecuting) {
+            // Only set to idle if not moving and commands aren't executing
             direction = "idle";
+            long now = System.nanoTime();
+            if (now - lastFrameTime > frameDelay) {
+                spriteNum++;
+                if (spriteNum > 4) {
+                    spriteNum = 1;
+                }
+                lastFrameTime = now;
+            }
+        } else {
+            // Commands are executing - just update animation
             long now = System.nanoTime();
             if (now - lastFrameTime > frameDelay) {
                 spriteNum++;
