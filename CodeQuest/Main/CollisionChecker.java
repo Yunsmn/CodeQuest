@@ -84,6 +84,7 @@ public class CollisionChecker {
                 obj.solidArea.x = obj.solidAreaDefaultX;
                 obj.solidArea.y = obj.solidAreaDefaultY;
                 if (intersects) {
+                    System.out.println("Collision with " + obj.name + " at " + obj.worldX + "," + obj.worldY + " player future: " + futureSolid + " obj rect: " + obj.solidArea.x + "," + obj.solidArea.y + "," + obj.solidArea.width + "," + obj.solidArea.height);
                     return true;
                 }
             }

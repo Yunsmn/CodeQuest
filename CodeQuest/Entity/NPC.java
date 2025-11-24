@@ -34,7 +34,23 @@ public class NPC extends entity implements Drawable {
     }
 
     public void getNPCImage() {
-        // Reuse player sprites for NPC
+        // Load directional and idle sprites
+        this.up1 = AssetHandler.getInstance().getImage("NPC_up1");
+        this.up2 = AssetHandler.getInstance().getImage("NPC_up2");
+        this.up3 = AssetHandler.getInstance().getImage("NPC_up3");
+        this.up4 = AssetHandler.getInstance().getImage("NPC_up4");
+        this.down1 = AssetHandler.getInstance().getImage("NPC_down1");
+        this.down2 = AssetHandler.getInstance().getImage("NPC_down2");
+        this.down3 = AssetHandler.getInstance().getImage("NPC_down3");
+        this.down4 = AssetHandler.getInstance().getImage("NPC_down4");
+        this.left1 = AssetHandler.getInstance().getImage("NPC_left1");
+        this.left2 = AssetHandler.getInstance().getImage("NPC_left2");
+        this.left3 = AssetHandler.getInstance().getImage("NPC_left3");
+        this.left4 = AssetHandler.getInstance().getImage("NPC_left4");
+        this.right1 = AssetHandler.getInstance().getImage("NPC_right1");
+        this.right2 = AssetHandler.getInstance().getImage("NPC_right2");
+        this.right3 = AssetHandler.getInstance().getImage("NPC_right3");
+        this.right4 = AssetHandler.getInstance().getImage("NPC_right4");
         this.idle1 = AssetHandler.getInstance().getImage("NPC_idle1");
         this.idle2 = AssetHandler.getInstance().getImage("NPC_idle2");
         this.idle3 = AssetHandler.getInstance().getImage("NPC_idle3");
@@ -89,55 +105,6 @@ public class NPC extends entity implements Drawable {
             }
         }
     }
-    public void checkNPCCollision(entity entity) {
-        int futureX = entity.worldX;
-        int futureY = entity.worldY;
-
-        switch (entity.direction) {
-            case "up": futureY -= entity.speed; break;
-            case "down": futureY += entity.speed; break;
-            case "left": futureX -= entity.speed; break;
-            case "right": futureX += entity.speed; break;
-        }
-
-        Rectangle futureSolid = new Rectangle(
-                futureX + entity.solidArea.x,
-                futureY + entity.solidArea.y,
-                entity.solidArea.width,
-                entity.solidArea.height
-        );
-
-        // Check collision with player
-        Rectangle playerRect = new Rectangle(
-                gamePanel.player.worldX + gamePanel.player.solidArea.x,
-                gamePanel.player.worldY + gamePanel.player.solidArea.y,
-                gamePanel.player.solidArea.width,
-                gamePanel.player.solidArea.height
-        );
-
-        if (futureSolid.intersects(playerRect)) {
-            entity.collisionOn = true;
-            return;
-        }
-
-        // Check collision with other NPCs
-        for (NPC npc : gamePanel.npcM.npcs) {
-            if (npc != entity) { // Don't check collision with self
-                Rectangle npcRect = new Rectangle(
-                        npc.worldX + npc.solidArea.x,
-                        npc.worldY + npc.solidArea.y,
-                        npc.solidArea.width,
-                        npc.solidArea.height
-                );
-
-                if (futureSolid.intersects(npcRect)) {
-                    entity.collisionOn = true;
-                    return;
-                }
-            }
-        }
-    }
-
 
     @Override
     public int getSortY() {

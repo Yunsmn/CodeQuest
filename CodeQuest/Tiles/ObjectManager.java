@@ -52,28 +52,28 @@ public class ObjectManager {
                         // Set solidArea based on tileKey, half +10 pixels
                         switch (tileKey) {
                             case "beach_up" :
-                                obj.solidArea = new Rectangle(0, -6, 64, 42);
+                                obj.solidArea = new Rectangle(0, 0, 64, 32); // Top half
                                 break;
                             case "beach_down" :
-                                obj.solidArea = new Rectangle(0, 0, 64, 64);// Full 64x64
+                                obj.solidArea = new Rectangle(0, 32, 64, 32); // Bottom half
                                 break;
                             case "beach_left" :
-                                obj.solidArea = new Rectangle(0, 0, 64, 64);  // Full 64x64
+                                obj.solidArea = new Rectangle(0, 0, 32, 64); // Left half
                                 break;
                             case "beach_right" :
-                                obj.solidArea = new Rectangle(0, 0, 64, 64);  // Full 64x64
+                                obj.solidArea = new Rectangle(32, 0, 32, 64); // Right half
                                 break;
                             case "beach_top_left" :
-                                obj.solidArea = new Rectangle(-6, -6, 60, 60);// 60x60
+                                obj.solidArea = new Rectangle(0, 0, 32, 32); // Top-left quarter
                                 break;
                             case "beach_top_right" :
-                                obj.solidArea = new Rectangle(10, -6, 60, 60);
+                                obj.solidArea = new Rectangle(32, 0, 32, 32); // Top-right quarter
                                 break;
                             case "beach_bottom_left" :
-                                obj.solidArea = new Rectangle(0, 0, 64, 64);  // Full 64x64
+                                obj.solidArea = new Rectangle(0, 32, 32, 32); // Bottom-left quarter
                                 break;
                             case "beach_bottom_right" :
-                                obj.solidArea = new Rectangle(0, 0, 64, 64);  // Full 64x64
+                                obj.solidArea = new Rectangle(32, 32, 32, 32); // Bottom-right quarter
                                 break;
                         }
                         obj.solidAreaDefaultX = obj.solidArea.x;
