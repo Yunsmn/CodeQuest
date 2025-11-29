@@ -5,15 +5,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
 
+// Singleton class that loads and manages all game images (Singleton pattern)
 public class AssetHandler {
-    private static AssetHandler instance;
-    private java.util.HashMap<String, BufferedImage> assets;
+    private static AssetHandler instance; // Single instance
+    private java.util.HashMap<String, BufferedImage> assets; // Map of name -> image
 
+    // Private constructor prevents external instantiation
     private AssetHandler() {
         assets = new java.util.HashMap<>();
-        loadAssets();
+        loadAssets(); // Load all assets on creation
     }
 
+    // Get the single instance (creates it if doesn't exist)
     public static AssetHandler getInstance() {
         if (instance == null) {
             instance = new AssetHandler();
@@ -21,8 +24,8 @@ public class AssetHandler {
         return instance;
     }
 
+    // Load all game assets (sprites, tiles, UI images)
     private void loadAssets() {
-        // Player sprites
         loadImage("player_up1", "/CodeQuest/res/player/run_up/0.png");
         loadImage("player_down1", "/CodeQuest/res/player/run_down/0.png");
         loadImage("player_left1", "/CodeQuest/res/player/run_left/0.png");
@@ -44,10 +47,8 @@ public class AssetHandler {
         loadImage("player_idle3", "/CodeQuest/res/player/idle_down/4.png");
         loadImage("player_idle4", "/CodeQuest/res/player/idle_down/6.png");
 
-        // Tiles
         loadImage("terrain", "/CodeQuest/res/tiles/terrain.png");
 
-        // Objects
         loadImage("beach_up", "/CodeQuest/res/tiles/Beach/beach_up.png");
         loadImage("beach_down", "/CodeQuest/res/tiles/Beach/beach_down.png");
         loadImage("beach_left", "/CodeQuest/res/tiles/Beach/beach_left.png");
@@ -69,24 +70,51 @@ public class AssetHandler {
         loadImage("NPC_idle3", "/CodeQuest/res/tiles/NPC_Idle3.png");
         loadImage("NPC_idle4", "/CodeQuest/res/tiles/NPC_Idle4.png");
 
+        loadImage("background", "/CodeQuest/res/tiles/MainMenue.png");
+
+        loadImage("heart","/CodeQuest/res/tiles/full_heart.png");
+        loadImage("broken_heart", "/CodeQuest/res/tiles/empty_heart.png");
+
+        loadImage("full_key", "/CodeQuest/res/tiles/full_key.png");
+
+        loadImage("game_over", "/CodeQuest/res/tiles/Game_over.png");
+        loadImage("win", "/CodeQuest/res/tiles/win.png");
+
+        loadImage("key1", "/CodeQuest/res/tiles/Key1.png");
+        loadImage("key2", "/CodeQuest/res/tiles/key2.png");
+        loadImage("key3", "/CodeQuest/res/tiles/Key3.png");
+        loadImage("key4", "/CodeQuest/res/tiles/Key4.png");
+
+        loadImage("chest1",  "/CodeQuest/res/tiles/chest1.png");
+        loadImage("chest2",  "/CodeQuest/res/tiles/chest2.png");
+        loadImage("chest3",  "/CodeQuest/res/tiles/chest3.png");
+        loadImage("chest4",  "/CodeQuest/res/tiles/chest4.png");
+
+        loadImage("chest1_open",  "/CodeQuest/res/tiles/chest1_open.png");
+        loadImage("chest2_open",  "/CodeQuest/res/tiles/chest2_open.png");
+        loadImage("chest3_open",  "/CodeQuest/res/tiles/chest3_open.png");
+        loadImage("chest4_open",  "/CodeQuest/res/tiles/chest4_open.png");
+
+
     }
 
+    // Load a single image from resources and store in assets map
     private void loadImage(String key, String path) {
         try {
             InputStream input = getClass().getResourceAsStream(path);
             if (input != null) {
-                BufferedImage img = ImageIO.read(input);
-                assets.put(key, img);
+                BufferedImage img = ImageIO.read(input); // Load image from file
+                assets.put(key, img); // Store in map
             } else {
-                assets.put(key, null); // Placeholder
+                assets.put(key, null); // Placeholder if file not found
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            assets.put(key, null); // Placeholder
-        }
+         } catch (IOException e) {
+             assets.put(key, null); // Placeholder on error
+         }
     }
 
+    // Get an image by its key name
     public BufferedImage getImage(String key) {
-        return assets.get(key);
+        return assets.get(key); // Return null if key doesn't exist
     }
 }

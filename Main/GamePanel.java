@@ -1,77 +1,135 @@
 package CodeQuest.Main;
 
+import CodeQuest.Entity.ChestSystem;
+import CodeQuest.Entity.HealthSystem;
+import CodeQuest.Entity.KeySystem;
+import CodeQuest.Entity.MessageSystem;
 import CodeQuest.Entity.NPC;
 import CodeQuest.Entity.NPCManager;
 import CodeQuest.Entity.Player;
-import CodeQuest.Main.Drawable;
 import CodeQuest.Tiles.MapObject;
 import CodeQuest.Tiles.ObjectManager;
 import CodeQuest.Tiles.TileManager;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+// Main game panel that handles game loop and rendering
 public class GamePanel extends JPanel implements Runnable {
 
-    final int gameTiles = 32;
-    final int scale = 2;
-    public final int gameTileSize = gameTiles * scale;
-    public final int maxScreenCol = 16;
-    public final int maxScreenRow = 10;
-    public final int gameScreenRow = 11;
-    final int parserRow = 3;
-    public final int screenWidth = gameTileSize * maxScreenCol;
-    public final int screenHeight = gameTileSize * maxScreenRow;
-    int fps = 60;
-    public KeyHandler keyH = new KeyHandler(this);
-    Thread gameThread;
-    public Player player = new Player(this, keyH);
+    // Screen settings
+    final int gameTiles = 32; // Base tile size
+    final int scale = 2; // Scale factor
+    public final int gameTileSize = gameTiles * scale; // Scaled tile size (64px)
+    public final int maxScreenCol = 16; // Screen columns
+    public final int maxScreenRow = 10; // Screen rows
+    public final int screenWidth = gameTileSize * maxScreenCol; // Screen width in pixels
+    public final int screenHeight = gameTileSize * maxScreenRow; // Screen height in pixels
+    int fps = 60; // Target frames per second
+    
+    // Game components
+    public KeyHandler keyH = new KeyHandler(this); // Keyboard input handler
+    Thread gameThread; // Game loop thread
+    public Player player = new Player(this, keyH); // Player entity
 
-    TileManager tileM = new TileManager(this);
-    ObjectManager objM = new ObjectManager(this);
+    TileManager tileM = new TileManager(this); // Tile rendering manager
+    public ObjectManager objM = new ObjectManager(this); // Map objects manager
+    public CollisionChecker collisionChecker = new CollisionChecker(this); // Collision detection
+    public NPCManager npcM = new NPCManager(this); // NPC manager
 
-    public CollisionChecker collisionChecker = new CollisionChecker(this);
+    public HealthSystem healthSystem = new HealthSystem(); // Player health system
+    public KeySystem keySystem = new KeySystem(); // Key collection system
+    public ChestSystem chestSystem = new ChestSystem(); // Chest counter system
+    public MessageSystem messageSystem; // NPC message display system
 
-    public final int maxWorldCol = 25;
-    public final int maxWorldRow = 25;
-    public final int worldWidth = maxWorldCol * gameTileSize;
-    public final int worldHeight = maxWorldRow * gameTileSize;
-    public NPCManager npcM = new NPCManager(this);
+    // World settings
+    public final int maxWorldCol = 50; // World width in tiles
+    public final int maxWorldRow = 50; // World height in tiles
 
-    public int gameState = 0;
-    public final int pauseState = 0;
-    public final int playState = 1;
+    GUI ui = new GUI(this); // UI overlay
 
-    GUI ui =  new GUI(this);
+    public CommandParser commandParser; // Command parser for Python commands
 
+    // Game states
+    public int gameState = 1; // Current game state
+    public final int titleState = 0; // Title screen
+    public final int menuState = 1; // Main menu
+    public final int playState = 2; // Playing game
+    public final int pauseState = 3; // Paused
+    public final int optionsState = 4; // Options menu
+    public final int gameOverState = 5; // Game over
+    public final int winState = 6; // Victory screen
 
-
-
+    // Constructor initializes game panel
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(new Color(0x156c99));
         this.setLayout(null);
-        this.setFocusable(false);
-        this.setVisible(true);
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
-        this.gameState = playState;
-        player.worldY = 320; // Position player to see top border
+
+        // Handle game over screen clicks
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (gameState == gameOverState) {
+                    int mx = e.getX();
+                    int my = e.getY();
+                    int buttonWidth = 150;
+                    int buttonHeight = 50;
+                    int restartX = screenWidth / 2 - buttonWidth / 2;
+                    int restartY = screenHeight / 2 + 100;
+                    // Check restart button click
+                    if (mx >= restartX && mx <= restartX + buttonWidth && my >= restartY && my <= restartY + buttonHeight) {
+                        restartGame();
+                    }
+                    // Check main menu button click
+                    int menuX = screenWidth / 2 - buttonWidth / 2;
+                    int menuY = restartY + buttonHeight + 20;
+                    if (mx >= menuX && mx <= menuX + buttonWidth && my >= menuY && my <= menuY + buttonHeight) {
+                        gameState = menuState;
+                    }
+                }
+            }
+        });
+        player.setDefault();
+
+        // Initialize command parser
+        commandParser = new CommandParser(this);
+        commandParser.setCommandDelay(300);
+
+        // Set health display position
+        healthSystem.setScreenPosition(20, 20);
+
+        // Set key display position (below hearts)
+        keySystem.setScreenPosition(20, 60);
+
+        // Set chest display position (below keys)
+        chestSystem.setScreenPosition(20, 100);
+
+        // Initialize message system
+        messageSystem = new MessageSystem(screenWidth, screenHeight);
+
+        // Start at title screen
+        this.gameState = titleState;
+        this.setVisible(false);
     }
 
+    // Starts the game loop thread
     void startGameThread() {
         gameThread = new Thread(this);
         gameThread.start();
     }
 
+    // Main game loop
     @Override
     public void run() {
-
         double drawInterval = (double) 1000000000 / fps;
         double deltaTime = 0;
         long lastTime = System.nanoTime();
@@ -79,19 +137,21 @@ public class GamePanel extends JPanel implements Runnable {
         long timer = 0;
         int frames = 0;
 
+        // Game loop
         while (gameThread != null) {
-
             now = System.nanoTime();
             deltaTime += (now - lastTime) / drawInterval;
             timer += now - lastTime;
             lastTime = now;
+
+            // Update and render at target FPS
             if (deltaTime >= 1) {
                 update();
                 repaint();
-
                 deltaTime--;
                 frames++;
             }
+
             if (timer >= 1000000000) {
                 frames = 0;
                 timer = 0;
@@ -99,82 +159,161 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
+    // Updates game state
     public void update() {
-
         if (gameState == playState) {
-            player.update();
-            npcM.update();
-        }
-        if (gameState == pauseState) {
+            player.update(); // Update player
+            npcM.update(); // Update NPCs
+            objM.update(); // Update objects
 
+            // Check for key collection
+            Rectangle playerRect = new Rectangle(player.worldX + player.solidArea.x, player.worldY + player.solidArea.y, player.solidArea.width, player.solidArea.height);
+            for (MapObject obj : objM.objects) {
+                if (obj.name.equals("key") && !obj.collected) {
+                    Rectangle objRect = new Rectangle(obj.worldX + obj.solidArea.x, obj.worldY + obj.solidArea.y, obj.solidArea.width, obj.solidArea.height);
+                    if (playerRect.intersects(objRect)) {
+                        obj.collected = true; // Collect key
+                        player.keys++; // Increment player key count
+                        keySystem.addKey(); // Add key to visual display
+                    }
+                }
+                // Check for chest opening (check proximity, not intersection, since chests block movement)
+                if (obj.name.startsWith("chest") && !obj.opened && keySystem.getCurrentKeys() > 0) {
+                    // Calculate distance between player center and chest center
+                    int playerCenterX = player.worldX + player.solidArea.x + player.solidArea.width / 2;
+                    int playerCenterY = player.worldY + player.solidArea.y + player.solidArea.height / 2;
+                    int chestCenterX = obj.worldX + gameTileSize / 2;
+                    int chestCenterY = obj.worldY + gameTileSize / 2;
+
+                    int distance = (int) Math.sqrt(Math.pow(playerCenterX - chestCenterX, 2) + Math.pow(playerCenterY - chestCenterY, 2));
+
+                    // Open chest if player is within 1.5 tiles distance
+                    if (distance < gameTileSize * 1.5) {
+                        obj.opened = true; // Open chest
+                        player.keys--; // Decrement key count
+                        keySystem.resetKeys(); // Reset visual display
+                        // Re-add remaining keys to visual display
+                        for (int i = 0; i < player.keys; i++) {
+                            keySystem.addKey();
+                        }
+                        obj.collision = false; // Remove collision so player can walk through
+                        chestSystem.openChest(); // Decrement chest counter
+                    }
+                }
+            }
+
+            // Check for nearby NPCs to show dialogue
+            boolean nearNPC = false;
+            for (NPC npc : npcM.npcs) {
+                if (npc.hasDialogue) {
+                    // Calculate distance to NPC
+                    int playerCenterX = player.worldX + player.solidArea.x + player.solidArea.width / 2;
+                    int playerCenterY = player.worldY + player.solidArea.y + player.solidArea.height / 2;
+                    int npcCenterX = npc.worldX + gameTileSize / 2;
+                    int npcCenterY = npc.worldY + gameTileSize / 2;
+
+                    int distance = (int) Math.sqrt(Math.pow(playerCenterX - npcCenterX, 2) + Math.pow(playerCenterY - npcCenterY, 2));
+
+                    // Show message if player is within 2 tiles of NPC
+                    if (distance < gameTileSize * 2) {
+                        messageSystem.showMessage(npc.dialogue);
+                        nearNPC = true;
+                        break; // Show only one message at a time
+                    }
+                }
+            }
+            // Hide message if not near any NPC
+            if (!nearNPC) {
+                messageSystem.hideMessage();
+            }
+
+            // Update command adapter
+            if (commandParser != null && commandParser.adapter != null) {
+                commandParser.adapter.update();
+            }
+
+            // Check for death
+            if (healthSystem.isDead() && gameState == playState) {
+                gameState = gameOverState;
+            }
+
+            // Check for victory (all chests opened)
+            if (chestSystem.getRemainingChests() == 0 && gameState == playState) {
+                gameState = winState;
+            }
         }
+    }
+
+    // Checks if position is visible on screen
+    private boolean isVisible(int worldX, int worldY, int margin) {
+        return worldX + margin > player.worldX - player.screenX &&
+               worldX - margin < player.worldX + player.screenX &&
+               worldY + margin > player.worldY - player.screenY &&
+               worldY - margin < player.worldY + player.screenY;
+    }
+
+    // Gets screen position for drawable entity
+    private int[] getScreenPos(Drawable d) {
+        if (d instanceof Player) {
+            return new int[]{player.screenX, player.screenY};
+        } else if (d instanceof MapObject obj) {
+            return new int[]{obj.worldX - player.worldX + player.screenX, obj.worldY - player.worldY + player.screenY};
+        } else if (d instanceof NPC npc) {
+            return new int[]{npc.worldX - player.worldX + player.screenX, npc.worldY - player.worldY + player.screenY};
+        }
+        return null;
     }
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         Graphics2D g2 = (Graphics2D)g;
 
         tileM.draw(g2);
 
-        // Collect drawables for Y-sorting
         List<Drawable> drawables = new ArrayList<>();
 
-        // Add objects
         for (MapObject obj : objM.objects) {
-            if (obj.worldX + gameTileSize * 3 > player.worldX - player.screenX &&
-                obj.worldX - gameTileSize * 3 < player.worldX + player.screenX &&
-                obj.worldY + gameTileSize * 3 > player.worldY - player.screenY &&
-                obj.worldY - gameTileSize * 3 < player.worldY + player.screenY) {
+            if (isVisible(obj.worldX, obj.worldY, gameTileSize * 3)) {
                 drawables.add(obj);
             }
         }
 
-        // Add player
         drawables.add(player);
+
         for (NPC npc : npcM.npcs) {
-            if (npc.worldX + gameTileSize > player.worldX - player.screenX &&
-                    npc.worldX - gameTileSize < player.worldX + player.screenX &&
-                    npc.worldY + gameTileSize > player.worldY - player.screenY &&
-                    npc.worldY - gameTileSize < player.worldY + player.screenY) {
+            if (isVisible(npc.worldX, npc.worldY, gameTileSize * 4)) {
                 drawables.add(npc);
             }
         }
 
         drawables.sort(Comparator.comparingInt(Drawable::getSortY));
 
-        // Draw sorted
         for (Drawable d : drawables) {
-            int screenX, screenY;
-            if (d instanceof Player) {
-                screenX = player.screenX;
-                screenY = player.screenY;
-            } else {
-                MapObject obj = (MapObject) d;
-                screenX = obj.worldX - player.worldX + player.screenX;
-                screenY = obj.worldY - player.worldY + player.screenY;
+            int[] pos = getScreenPos(d);
+            if (pos != null) {
+                d.draw(g2, pos[0], pos[1]);
             }
-            d.draw(g2, screenX, screenY);
         }
-
-        // Debug: Draw collision rects
         g2.setColor(Color.RED);
-        for (MapObject obj : objM.objects) {
-            if (obj.collision) {
-                g2.setColor(Color.RED);
-                int screenX = obj.worldX - player.worldX + player.screenX;
-                int screenY = obj.worldY - player.worldY + player.screenY;
-                if (obj.worldX + gameTileSize > player.worldX - player.screenX &&
-                    obj.worldX - gameTileSize < player.worldX + player.screenX) {
-                    g2.drawRect(screenX + obj.solidArea.x, screenY + obj.solidArea.y, obj.solidArea.width, obj.solidArea.height);
-                }
-            }else {
-                g2.setColor(Color.cyan);
-                int screenX = obj.worldX - player.worldX + player.screenX;
-                int screenY = obj.worldY - player.worldY + player.screenY;
-                if (obj.worldX + gameTileSize > player.worldX - player.screenX &&
-                        obj.worldX - gameTileSize < player.worldX + player.screenX) {
-                    g2.drawRect(screenX + obj.solidArea.x, screenY + obj.solidArea.y, obj.solidArea.width, obj.solidArea.height);
+        for (Object o : objM.objects) {
+            if (o instanceof MapObject) {
+                MapObject obj = (MapObject) o;
+                if (obj.collision) {
+                    g2.setColor(Color.RED);
+                    int screenX = obj.worldX - player.worldX + player.screenX;
+                    int screenY = obj.worldY - player.worldY + player.screenY;
+                    if (obj.worldX + gameTileSize > player.worldX - player.screenX &&
+                            obj.worldX - gameTileSize < player.worldX + player.screenX) {
+                        g2.drawRect(screenX + obj.solidArea.x, screenY + obj.solidArea.y, obj.solidArea.width, obj.solidArea.height);
+                    }
+                } else {
+                    g2.setColor(Color.cyan);
+                    int screenX = obj.worldX - player.worldX + player.screenX;
+                    int screenY = obj.worldY - player.worldY + player.screenY;
+                    if (obj.worldX + gameTileSize > player.worldX - player.screenX &&
+                            obj.worldX - gameTileSize < player.worldX + player.screenX) {
+                        g2.drawRect(screenX + obj.solidArea.x, screenY + obj.solidArea.y, obj.solidArea.width, obj.solidArea.height);
+                    }
                 }
             }
         }
@@ -182,7 +321,72 @@ public class GamePanel extends JPanel implements Runnable {
         g2.setColor(Color.BLUE);
         g2.drawRect(player.screenX + player.solidArea.x, player.screenY + player.solidArea.y, player.solidArea.width, player.solidArea.height);
 
+        // Draw NPC collision rects
+        g2.setColor(Color.GREEN);
+        for (NPC npc : npcM.npcs) {
+            if (npc.worldX + gameTileSize > player.worldX - player.screenX &&
+                    npc.worldX - gameTileSize < player.worldX + player.screenX) {
+                int screenX = npc.worldX - player.worldX + player.screenX;
+                int screenY = npc.worldY - player.worldY + player.screenY;
+                g2.drawRect(screenX + npc.solidArea.x, screenY + npc.solidArea.y, npc.solidArea.width, npc.solidArea.height);
+            }
+        }
+
+        if (gameState == playState || gameState == pauseState) {
+            healthSystem.draw(g2);
+            keySystem.draw(g2);
+            chestSystem.draw(g2);
+        }
+
         ui.draw(g2);
+
+        // Draw message bar on top of everything (if active)
+        if (gameState == playState) {
+            messageSystem.draw(g2);
+        }
+
+        if (gameState == gameOverState) {
+            healthSystem.drawGameOver(g2, screenWidth, screenHeight);
+        }
+
+        if (gameState == winState) {
+            healthSystem.drawWinScreen(g2, screenWidth, screenHeight);
+        }
+
         g2.dispose();
+    }
+
+    // Draws key count on screen
+    private void drawKeys(Graphics2D g2) {
+        g2.setFont(new Font("Arial", Font.BOLD, 20));
+        g2.setColor(Color.WHITE);
+        String text = "Keys: " + player.keys;
+        g2.drawString(text, 20, 60);
+    }
+
+    // Resets game to initial state
+    public void restartGame() {
+        player.setDefault(); // Reset player position
+        player.keys = 0; // Reset key count
+        healthSystem.resetHealth(); // Reset health
+        keySystem.resetKeys(); // Reset key display
+        chestSystem.resetChests(); // Reset chest counter
+
+        // Reset all collected objects and chests
+        for (MapObject obj : objM.objects) {
+            obj.collected = false; // Reset keys
+            obj.opened = false; // Reset chests
+            // Restore collision for chests
+            if (obj.name.startsWith("chest")) {
+                obj.collision = true;
+            }
+        }
+
+        // Clear command queue
+        if (commandParser != null && commandParser.adapter != null) {
+            commandParser.adapter.clearQueue();
+        }
+
+        gameState = playState; // Return to play state
     }
 }

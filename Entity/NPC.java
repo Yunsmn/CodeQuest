@@ -7,17 +7,20 @@ import CodeQuest.Tiles.AssetHandler;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+// Non-Player Character class - represents NPCs that can move randomly and have dialogue
 public class NPC extends entity implements Drawable {
-    GamePanel gamePanel;
-    public String name;
-    public String dialogue;
-    public boolean hasDialogue = false;
+    GamePanel gamePanel; // Reference to the game panel
+    public String name; // NPC identifier
+    public String dialogue; // Text dialogue for this NPC
+    public boolean hasDialogue = false; // True if NPC has dialogue
 
     // NPC behavior
-    public boolean stationary = true;
-    public int actionCounter = 0;
+    public boolean stationary = true; // If true, NPC doesn't move
+    public int actionCounter = 0; // Counts frames for AI decision making
     public int actionInterval = 120; // Change direction every 2 seconds at 60fps
+    private BufferedImage[][] sprites; // 2D array: [direction][frame] for animations
 
+    // Constructor: creates NPC with game panel reference and name
     public NPC(GamePanel gamePanel, String name) {
         this.gamePanel = gamePanel;
         this.name = name;
@@ -25,46 +28,53 @@ public class NPC extends entity implements Drawable {
         getNPCImage();
     }
 
+    // Set default NPC properties
     public void setDefaultValues() {
-        speed = 2;
-        direction = "down";
+        speed = 2; // NPC movement speed
+        direction = "down"; // Start facing down
 
-        // Default collision area
-        solidArea = new Rectangle(8, 16, gamePanel.gameTileSize / 2, gamePanel.gameTileSize / 2);
+        // Default collision area - lower half of sprite for realistic collision
+        solidArea = new Rectangle(8, 32, gamePanel.gameTileSize / 2, gamePanel.gameTileSize / 2);
     }
 
+    // Load all NPC sprite images from asset handler
     public void getNPCImage() {
-        // Load NPC sprites from AssetHandler
-        // For now, you can reuse player sprites or create NPC-specific ones
-        this.up1 = AssetHandler.getInstance().getImage(name + "_up1");
-        this.down1 = AssetHandler.getInstance().getImage(name + "_down1");
-        this.left1 = AssetHandler.getInstance().getImage(name + "_left1");
-        this.right1 = AssetHandler.getInstance().getImage(name + "_right1");
-        this.up2 = AssetHandler.getInstance().getImage(name + "_up2");
-        this.down2 = AssetHandler.getInstance().getImage(name + "_down2");
-        this.left2 = AssetHandler.getInstance().getImage(name + "_left2");
-        this.right2 = AssetHandler.getInstance().getImage(name + "_right2");
-        this.up3 = AssetHandler.getInstance().getImage(name + "_up3");
-        this.down3 = AssetHandler.getInstance().getImage(name + "_down3");
-        this.left3 = AssetHandler.getInstance().getImage(name + "_left3");
-        this.right3 = AssetHandler.getInstance().getImage(name + "_right3");
-        this.up4 = AssetHandler.getInstance().getImage(name + "_up4");
-        this.down4 = AssetHandler.getInstance().getImage(name + "_down4");
-        this.left4 = AssetHandler.getInstance().getImage(name + "_left4");
-        this.right4 = AssetHandler.getInstance().getImage(name + "_right4");
-        this.idle1 = AssetHandler.getInstance().getImage(name + "_idle1");
-        this.idle2 = AssetHandler.getInstance().getImage(name + "_idle2");
-        this.idle3 = AssetHandler.getInstance().getImage(name + "_idle3");
-        this.idle4 = AssetHandler.getInstance().getImage(name + "_idle4");
+        sprites = new BufferedImage[5][4]; // 5 directions, 4 frames each
+        // Load up direction sprites (index 0)
+        sprites[0][0] = AssetHandler.getInstance().getImage("NPC_up1");
+        sprites[0][1] = AssetHandler.getInstance().getImage("NPC_up2");
+        sprites[0][2] = AssetHandler.getInstance().getImage("NPC_up3");
+        sprites[0][3] = AssetHandler.getInstance().getImage("NPC_up4");
+        // Load down direction sprites (index 1)
+        sprites[1][0] = AssetHandler.getInstance().getImage("NPC_down1");
+        sprites[1][1] = AssetHandler.getInstance().getImage("NPC_down2");
+        sprites[1][2] = AssetHandler.getInstance().getImage("NPC_down3");
+        sprites[1][3] = AssetHandler.getInstance().getImage("NPC_down4");
+        // Load left direction sprites (index 2)
+        sprites[2][0] = AssetHandler.getInstance().getImage("NPC_left1");
+        sprites[2][1] = AssetHandler.getInstance().getImage("NPC_left2");
+        sprites[2][2] = AssetHandler.getInstance().getImage("NPC_left3");
+        sprites[2][3] = AssetHandler.getInstance().getImage("NPC_left4");
+        // Load right direction sprites (index 3)
+        sprites[3][0] = AssetHandler.getInstance().getImage("NPC_right1");
+        sprites[3][1] = AssetHandler.getInstance().getImage("NPC_right2");
+        sprites[3][2] = AssetHandler.getInstance().getImage("NPC_right3");
+        sprites[3][3] = AssetHandler.getInstance().getImage("NPC_right4");
+        // Load idle sprites (index 4)
+        sprites[4][0] = AssetHandler.getInstance().getImage("NPC_idle1");
+        sprites[4][1] = AssetHandler.getInstance().getImage("NPC_idle2");
+        sprites[4][2] = AssetHandler.getInstance().getImage("NPC_idle3");
+        sprites[4][3] = AssetHandler.getInstance().getImage("NPC_idle4");
     }
 
+    // Update NPC position and animation each frame
     public void update() {
         if (!stationary) {
             // Random movement AI
             actionCounter++;
             if (actionCounter >= actionInterval) {
                 // Random direction
-                int rand = (int)(Math.random() * 100);
+                int rand = (int) (Math.random() * 100);
                 if (rand < 25) direction = "up";
                 else if (rand < 50) direction = "down";
                 else if (rand < 75) direction = "left";
@@ -73,13 +83,19 @@ public class NPC extends entity implements Drawable {
                 actionCounter = 0;
             }
 
-            // Use existing collision system
-            collisionOn = false;
-            gamePanel.collisionChecker.checkTile(this);
-            gamePanel.collisionChecker.checkNPCCollision(this); // Add this
+            // Predict future position by 5 pixels
+            int predictX = worldX;
+            int predictY = worldY;
+            switch (direction) {
+                case "up": predictY -= 5; break;
+                case "down": predictY += 5; break;
+                case "left": predictX -= 5; break;
+                case "right": predictX += 5; break;
+            }
 
-            // Move if no collision
-            if (!collisionOn) {
+            // Check if future position would collide
+            if (!gamePanel.collisionChecker.checkAllCollisions(this, predictX, predictY)) {
+                // Move if clear
                 switch (direction) {
                     case "up": worldY -= speed; break;
                     case "down": worldY += speed; break;
@@ -88,7 +104,7 @@ public class NPC extends entity implements Drawable {
                 }
             }
 
-            // Animate sprite
+            // Animate
             long now = System.nanoTime();
             if (now - lastFrameTime > frameDelay) {
                 spriteNum++;
@@ -106,104 +122,32 @@ public class NPC extends entity implements Drawable {
             }
         }
     }
-    public void checkNPCCollision(entity entity) {
-        int futureX = entity.worldX;
-        int futureY = entity.worldY;
-
-        switch (entity.direction) {
-            case "up": futureY -= entity.speed; break;
-            case "down": futureY += entity.speed; break;
-            case "left": futureX -= entity.speed; break;
-            case "right": futureX += entity.speed; break;
-        }
-
-        Rectangle futureSolid = new Rectangle(
-                futureX + entity.solidArea.x,
-                futureY + entity.solidArea.y,
-                entity.solidArea.width,
-                entity.solidArea.height
-        );
-
-        // Check collision with player
-        Rectangle playerRect = new Rectangle(
-                gamePanel.player.worldX + gamePanel.player.solidArea.x,
-                gamePanel.player.worldY + gamePanel.player.solidArea.y,
-                gamePanel.player.solidArea.width,
-                gamePanel.player.solidArea.height
-        );
-
-        if (futureSolid.intersects(playerRect)) {
-            entity.collisionOn = true;
-            return;
-        }
-
-        // Check collision with other NPCs
-        for (NPC npc : gamePanel.npcM.npcs) {
-            if (npc != entity) { // Don't check collision with self
-                Rectangle npcRect = new Rectangle(
-                        npc.worldX + npc.solidArea.x,
-                        npc.worldY + npc.solidArea.y,
-                        npc.solidArea.width,
-                        npc.solidArea.height
-                );
-
-                if (futureSolid.intersects(npcRect)) {
-                    entity.collisionOn = true;
-                    return;
-                }
-            }
-        }
-    }
 
 
     @Override
     public int getSortY() {
-        return worldY + solidArea.y + solidArea.height;
+        return worldY + solidArea.y + solidArea.height; // Bottom Y for consistent sorting
     }
 
+    // Draw the NPC sprite on screen
     @Override
     public void draw(Graphics2D g2, int screenX, int screenY) {
-        BufferedImage image = null;
-
-        switch (direction) {
-            case "up":
-                if (spriteNum == 1) image = up1;
-                else if (spriteNum == 2) image = up2;
-                else if (spriteNum == 3) image = up3;
-                else if (spriteNum == 4) image = up4;
-                break;
-            case "down":
-                if (spriteNum == 1) image = down1;
-                else if (spriteNum == 2) image = down2;
-                else if (spriteNum == 3) image = down3;
-                else if (spriteNum == 4) image = down4;
-                break;
-            case "left":
-                if (spriteNum == 1) image = left1;
-                else if (spriteNum == 2) image = left2;
-                else if (spriteNum == 3) image = left3;
-                else if (spriteNum == 4) image = left4;
-                break;
-            case "right":
-                if (spriteNum == 1) image = right1;
-                else if (spriteNum == 2) image = right2;
-                else if (spriteNum == 3) image = right3;
-                else if (spriteNum == 4) image = right4;
-                break;
-            case "idle":
-                if (spriteNum == 1) image = idle1;
-                else if (spriteNum == 2) image = idle2;
-                else if (spriteNum == 3) image = idle3;
-                else if (spriteNum == 4) image = idle4;
-                break;
-        }
-
+        // Map direction string to sprite array index
+        int dirIndex = switch (direction) {
+            case "up" -> 0;
+            case "down" -> 1;
+            case "left" -> 2;
+            case "right" -> 3;
+            case "idle" -> 4;
+            default -> 4;
+        };
+        BufferedImage image = sprites[dirIndex][spriteNum - 1]; // Get current frame
         if (image != null) {
-            g2.drawImage(image, screenX, screenY, gamePanel.gameTileSize, gamePanel.gameTileSize, null);
+            g2.drawImage(image, screenX, screenY, 60, 90, null); // Draw NPC sprite (60x90 pixels)
         } else {
-            // Fallback - draw colored rectangle
-            g2.setColor(Color.YELLOW);
-            g2.fillRect(screenX, screenY, gamePanel.gameTileSize, gamePanel.gameTileSize);
+            // Fallback if sprite is missing - draw red rectangle
+            g2.setColor(Color.RED);
+            g2.fillRect(screenX, screenY, 100, 100);
         }
     }
 }
